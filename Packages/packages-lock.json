@@ -1,5 +1,16 @@
 {
   "dependencies": {
+    "com.machamy.developerconsole": {
+      "version": "https://github.com/machamy/McDeveloperConsole.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.inputsystem": "1.6.0",
+        "com.unity.ui.builder": "1.0.0",
+        "com.unity.ugui": "1.0.0"
+      },
+      "hash": "4812ec60087893204b5d7683c7c1638798cba5e2"
+    },
     "com.unity.ai.navigation": {
       "version": "2.0.9",
       "depth": 0,
@@ -193,6 +204,12 @@
         "com.unity.modules.ui": "1.0.0",
         "com.unity.modules.imgui": "1.0.0"
       }
+    },
+    "com.unity.ui.builder": {
+      "version": "2.0.0",
+      "depth": 1,
+      "source": "builtin",
+      "dependencies": {}
     },
     "com.unity.visualscripting": {
       "version": "1.9.7",
