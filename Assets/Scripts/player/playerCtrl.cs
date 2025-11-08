@@ -1,23 +1,27 @@
 using UnityEngine;
-using UnityEngine.InputSystem; // Input System을 사용하기 위해 필수!
+using UnityEngine.InputSystem;
 
-public class playerCtrl : MonoBehaviour
+public class PlayerCtrl : MonoBehaviour
 {
     public float mouseSensitivity = 100f;
-    public Transform playerBody;
+    public Transform cameraTransform;
 
     private float xRotation = 0f;
-    private Vector2 lookInput; // 마우스 입력을 저장할 변수
+    private Vector2 lookInput;
+    
+    // [추가] 스크립트 잠금 플래그
+    private bool isLocked = false;
 
     void Start()
     {
-        // 마우스 커서 고정 및 숨기기
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        if (cameraTransform == null)
+        {
+            cameraTransform = GetComponentInChildren<Camera>().transform;
+        }
+        // 시작할 때 잠금 해제 (게임 모드)
+        UnlockMouseLook(); 
     }
 
-    // Input System이 'Look' 액션 입력을 감지하면 이 함수를 호출합니다.
-    // Player 객체에 붙은 PlayerInput 컴포넌트가 이 함수를 찾아 실행시킵니다.
     public void OnLook(InputValue value)
     {
         lookInput = value.Get<Vector2>();
@@ -25,16 +29,35 @@ public class playerCtrl : MonoBehaviour
 
     void Update()
     {
-        // OnLook에서 받아온 입력을 기반으로 실제 회전을 처리합니다.
-        float mouseX = lookInput.x * mouseSensitivity * Time.deltaTime;
-        float mouseY = lookInput.y * mouseSensitivity * Time.deltaTime;
+        // [추가] 잠겨있으면 마우스 입력을 처리하지 않음
+        if (isLocked)
+        {
+            return;
+        }
 
-        // 1. 좌우 회전 (Player Body)
-        playerBody.Rotate(Vector3.up * mouseX);
+        float mouseX = lookInput.x * mouseSensitivity;
+        float mouseY = lookInput.y * mouseSensitivity;
 
-        // 2. 상하 회전 (Camera)
+        transform.Rotate(Vector3.up * mouseX);
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
-        transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        cameraTransform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+    }
+
+    // [추가] 외부에서 호출할 잠금 함수 (대화 모드)
+    public void LockMouseLook()
+    {
+        isLocked = true;
+        lookInput = Vector2.zero; // 입력값 초기화
+        Cursor.lockState = CursorLockMode.None; // 커서 보이기
+        Cursor.visible = true;
+    }
+
+    // [추가] 외부에서 호출할 잠금 해제 함수 (게임 모드)
+    public void UnlockMouseLook()
+    {
+        isLocked = false;
+        Cursor.lockState = CursorLockMode.Locked; // 커서 숨기기
+        Cursor.visible = false;
     }
 }

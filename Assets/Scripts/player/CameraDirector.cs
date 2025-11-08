@@ -1,9 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
+using DG.Tweening; // DOTween을 사용하기 위해 필수!
 
 public class CameraDirector : MonoBehaviour
 {
-    // [System.Serializable]은 이 구조체를 인스펙터 창에 노출시킵니다.
     [System.Serializable]
     public struct CharacterTarget
     {
@@ -20,14 +20,17 @@ public class CameraDirector : MonoBehaviour
     [Tooltip("제어할 메인 카메라. 비어있으면 Camera.main을 사용합니다.")]
     public Transform cameraTransform;
 
-    [Tooltip("카메라 회전 속도")]
-    public float rotationSpeed = 5f;
+    [Tooltip("카메라가 회전하는 데 걸리는 시간(초)")]
+    public float tweenDuration = 0.5f; // rotationSpeed 대신 사용합니다.
+
+    [Tooltip("카메라 회전 시 사용할 Ease 타입")]
+    public Ease easeType = Ease.OutQuad;
 
     [Tooltip("씬에 있는 모든 캐릭터 타겟을 여기에 등록합니다.")]
     public List<CharacterTarget> characterTargets;
-
-    private Transform currentTarget; // 현재 바라보고 있는 타겟
-    private Vector3 currentOffset;   // 현재 타겟의 오프셋
+    // DOTween은 Update가 필요 없으므로 currentTarget, currentOffset 변수가 필요 없습니다.
+    // private Transform currentTarget;
+    // private Vector3 currentOffset;
 
     void Awake()
     {
@@ -37,66 +40,50 @@ public class CameraDirector : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-        // 현재 타겟이 설정되어 있다면
-        if (currentTarget != null)
-        {
-            // 타겟의 실제 위치 (오프셋 포함)
-            Vector3 targetPosition = currentTarget.position + currentOffset;
-
-            // 카메라 위치에서 타겟 위치를 바라보는 방향 벡터
-            Vector3 direction = targetPosition - cameraTransform.position;
-
-            // 해당 방향을 바라보는 목표 회전값(Quaternion) 계산
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-
-            // 현재 카메라 회전값에서 목표 회전값으로 부드럽게 보간 (Slerp)
-            cameraTransform.rotation = Quaternion.Slerp(
-                cameraTransform.rotation,
-                targetRotation,
-                Time.deltaTime * rotationSpeed
-            );
-        }
-    }
-
     /// <summary>
     /// 이 캐릭터를 바라보도록 명령하는 공개 함수 (다른 스크립트에서 호출됨)
     /// </summary>
     /// <param name="characterName">Yarn Spinner에서 받은 캐릭터 이름</param>
     public void FocusOnCharacter(string characterName)
     {
-        Debug.Log($"[Director] FocusOnCharacter 호출됨. 전달받은 이름: '{characterName}'");
-
+        // 1. 캐릭터 이름이 비어있다면 (나레이션 등)
         if (string.IsNullOrEmpty(characterName))
         {
-            currentTarget = null; 
+            // TODO: 나레이션일 때 기본 카메라 위치로 되돌리기
+            // cameraTransform.DOKill(); // 진행 중인 트윈 중지
+            // cameraTransform.DORotate(Vector3.zero, tweenDuration); // 예: 기본 정면(0,0,0)으로 복귀
             return;
         }
 
+        // 2. 등록된 캐릭터 리스트에서 일치하는 이름 찾기
         foreach (var entry in characterTargets)
         {
             if (entry.yarnCharacterName == characterName)
             {
-                // 이 로그가 찍히면 이름이 일치하는 타겟을 찾은 것입니다.
-                Debug.Log($"[Director] 일치하는 타겟 찾음: {entry.targetTransform.name}");
-                currentTarget = entry.targetTransform;
-                currentOffset = entry.offset;
-                return;
+                // --- DOTween 로직 시작 ---
+
+                // 1. 타겟의 실제 위치 (오프셋 포함) 계산
+                Vector3 targetPosition = entry.targetTransform.position + entry.offset;
+
+                // 2. 카메라 위치에서 타겟 위치를 바라보는 방향 벡터 계산
+                Vector3 direction = targetPosition - cameraTransform.position;
+
+                // 3. 해당 방향을 바라보는 목표 회전값(Quaternion) 계산
+                Quaternion targetRotation = Quaternion.LookRotation(direction);
+
+                // 4. (중요) 기존에 실행 중이던 카메라 트윈을 모두 중지시킵니다.
+                //    (이걸 안 하면 여러 트윈이 겹쳐서 카메라가 떨릴 수 있습니다)
+                cameraTransform.DOKill(true); // true: 즉시 현재 위치에서 중지
+
+                // 5. DOTween으로 카메라를 부드럽게 회전시킵니다.
+                cameraTransform.DORotateQuaternion(targetRotation, tweenDuration)
+                               .SetEase(easeType); // 설정한 Ease 타입 적용
+
+                return; // 타겟을 찾았으므로 함수 종료
             }
         }
 
-        // 이 경고가 뜬다면, 이름은 전달됐지만 리스트에 등록된 이름과 일치하는 것이 없는 것입니다.
+        // 3. 리스트에 등록되지 않은 캐릭터 이름인 경우
         Debug.LogWarning($"[CameraDirector] '{characterName}'에 해당하는 타겟을 찾을 수 없습니다.");
-        currentTarget = null;
-    }
-
-    /// <summary>
-    /// (선택 사항) 대화가 끝났을 때 카메라를 원래 위치로 되돌리는 함수
-    /// </summary>
-    public void ResetCameraFocus()
-    {
-        currentTarget = null;
-        // TODO: 카메라를 기본 위치/회전으로 되돌리는 로직을 추가할 수 있습니다.
     }
 }
