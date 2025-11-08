@@ -32,6 +32,9 @@ public class CameraDirector : MonoBehaviour
     // private Transform currentTarget;
     // private Vector3 currentOffset;
 
+    [Tooltip("씬에 있는 playerCtrl를 연결하세요.")]
+    public PlayerCtrl playerCtrl;
+    
     void Awake()
     {
         if (cameraTransform == null)
@@ -51,7 +54,7 @@ public class CameraDirector : MonoBehaviour
         {
             // TODO: 나레이션일 때 기본 카메라 위치로 되돌리기
             // cameraTransform.DOKill(); // 진행 중인 트윈 중지
-            // cameraTransform.DORotate(Vector3.zero, tweenDuration); // 예: 기본 정면(0,0,0)으로 복귀
+            playerCtrl.UnlockMouseLook();
             return;
         }
 
@@ -61,7 +64,7 @@ public class CameraDirector : MonoBehaviour
             if (entry.yarnCharacterName == characterName)
             {
                 // --- DOTween 로직 시작 ---
-
+                playerCtrl.LockMouseLook();
                 // 1. 타겟의 실제 위치 (오프셋 포함) 계산
                 Vector3 targetPosition = entry.targetTransform.position + entry.offset;
 
@@ -71,14 +74,13 @@ public class CameraDirector : MonoBehaviour
                 // 3. 해당 방향을 바라보는 목표 회전값(Quaternion) 계산
                 Quaternion targetRotation = Quaternion.LookRotation(direction);
 
-                // 4. (중요) 기존에 실행 중이던 카메라 트윈을 모두 중지시킵니다.
-                //    (이걸 안 하면 여러 트윈이 겹쳐서 카메라가 떨릴 수 있습니다)
+
                 cameraTransform.DOKill(true); // true: 즉시 현재 위치에서 중지
 
                 // 5. DOTween으로 카메라를 부드럽게 회전시킵니다.
                 cameraTransform.DORotateQuaternion(targetRotation, tweenDuration)
                                .SetEase(easeType); // 설정한 Ease 타입 적용
-
+                
                 return; // 타겟을 찾았으므로 함수 종료
             }
         }
