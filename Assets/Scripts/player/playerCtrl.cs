@@ -21,7 +21,6 @@ public class playerCtrl : MonoBehaviour
     public void OnLook(InputValue value)
     {
         lookInput = value.Get<Vector2>();
-        Debug.Log(lookInput);
     }
 
     void Update()
