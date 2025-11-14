@@ -1,30 +1,34 @@
 using UnityEngine;
 using UnityEngine.Events;
-using System.Collections.Generic; // List를 사용하기 위해 추가
+using System.Collections.Generic; // List 사용을 위해 유지
 
 public class Interactable : MonoBehaviour
 {
     [Header("UI 설정")]
-    [Tooltip("UI에 표시될 상호작용 프롬프트 메시지 (예: [E] 문 열기)")]
+    [Tooltip("UI에 표시될 상호작용 프롬프트 메시지")]
     public string promptMessage = "[E] 상호작용";
 
     [Header("하이라이트 설정")]
-    [Tooltip("하이라이트 시킬 발광 색상")]
-    public Color highlightColor = Color.white;
-    
-    [Tooltip("하이라이트 강도 (Emission Intensity)")]
-    [Range(0f, 5f)]
-    public float highlightIntensity = 1.5f;
+    [Tooltip("하이라이트 시 사용할 '추가' 머티리얼 (예: 아웃라인 쉐이더)")]
+    public Material highlightMaterial; // [수정] Emission 대신 하이라이트 머티리얼을 받음
+
+    // [삭제] Emission 관련 변수들은 이제 필요 없습니다.
+    // public Color highlightColor = Color.white;
+    // public float highlightIntensity = 1.5f;
 
     [Header("이벤트")]
     [Tooltip("상호작용 시 실행될 이벤트를 여기에 연결합니다.")]
     public UnityEvent onInteract;
 
-    // --- [새로 추가된 변수] ---
-    private Renderer _renderer; // 오브젝트의 렌더러
-    private List<Material> _materials = new List<Material>(); // 렌더러의 머티리얼 리스트
-    private List<Color> _originalEmissionColors = new List<Color>(); // 원래 발광 색상 저장용
+    // --- [수정된 변수] ---
+    private Renderer _renderer;
+    
+    // [수정] 원본 머티리얼 '배열'을 저장할 리스트
+    private List<Material> _originalMaterials = new List<Material>();
     private bool _isHighlighted = false;
+    
+    // [삭제] 원본 Emission 색상 저장은 필요 없음
+    // private List<Color> _originalEmissionColors = new List<Color>();
 
     void Awake()
     {
@@ -36,22 +40,13 @@ public class Interactable : MonoBehaviour
 
         if (_renderer != null)
         {
-            // 런타임에 머티리얼 인스턴스를 가져옵니다. (공유 머티리얼 원본이 아닌)
-            _renderer.GetMaterials(_materials);
-
-            // 원본 머티리얼의 Emission 색상을 저장해둡니다.
-            foreach (var mat in _materials)
-            {
-                if (mat.HasProperty("_EmissionColor"))
-                {
-                    _originalEmissionColors.Add(mat.GetColor("_EmissionColor"));
-                }
-                else
-                {
-                    // Emission 속성이 없는 머티리얼(예: Unlit)인 경우
-                    _originalEmissionColors.Add(Color.black);
-                }
-            }
+            // [수정] 현재 렌더러의 '공유 머티리얼(sharedMaterials)'을 원본으로 저장합니다.
+            // .materials를 사용하면 인스턴스가 생성되므로 .sharedMaterials를 사용합니다.
+            _renderer.GetSharedMaterials(_originalMaterials);
+        }
+        else
+        {
+            Debug.LogWarning("Interactable이 렌더러를 찾지 못했습니다.", this);
         }
     }
 
@@ -63,50 +58,36 @@ public class Interactable : MonoBehaviour
         onInteract.Invoke();
     }
 
-    // --- [새로 추가된 함수] ---
-
     /// <summary>
-    /// 하이라이트(발광)를 켭니다.
+    /// 하이라이트(머티리얼 추가)를 켭니다.
     /// </summary>
     public void Highlight()
     {
-        if (_renderer == null || _materials.Count == 0 || _isHighlighted) return;
+        if (_renderer == null || _isHighlighted || highlightMaterial == null) return;
 
         _isHighlighted = true;
-        // HDR 컬러 계산 (강도 적용)
-        Color finalColor = highlightColor * Mathf.LinearToGammaSpace(highlightIntensity);
 
-        foreach (var mat in _materials)
-        {
-            if (mat.HasProperty("_EmissionColor"))
-            {
-                mat.EnableKeyword("_EMISSION"); // Emission 활성화
-                mat.SetColor("_EmissionColor", finalColor);
-            }
-        }
+        // 1. 원본 머티리얼 리스트를 기반으로 새 리스트를 만듭니다.
+        List<Material> newMaterialsList = new List<Material>(_originalMaterials);
+
+        // 2. 새 리스트의 끝에 하이라이트 머티리얼을 추가합니다.
+        newMaterialsList.Add(highlightMaterial);
+
+        // 3. 렌더러의 'materials' 프로퍼티를 새 리스트의 배열(ToArray)로 교체합니다.
+        // (이때 머티리얼 인스턴스들이 생성됩니다)
+        _renderer.materials = newMaterialsList.ToArray();
     }
 
     /// <summary>
-    /// 하이라이트(발광)를 끕니다. (원래대로 복구)
+    /// 하이라이트(머티리얼 제거)를 끕니다. (원래대로 복구)
     /// </summary>
     public void Unhighlight()
     {
-        if (_renderer == null || _materials.Count == 0 || !_isHighlighted) return;
+        if (_renderer == null || !_isHighlighted) return;
 
         _isHighlighted = false;
-        for (int i = 0; i < _materials.Count; i++)
-        {
-            if (_materials[i].HasProperty("_EmissionColor"))
-            {
-                // 저장해둔 원래 색상으로 복구
-                _materials[i].SetColor("_EmissionColor", _originalEmissionColors[i]);
 
-                // 원래 색상이 검은색(0,0,0)이었다면 Emission 비활성화
-                if (_originalEmissionColors[i] == Color.black)
-                {
-                    _materials[i].DisableKeyword("_EMISSION");
-                }
-            }
-        }
+        // 1. 렌더러의 머티리얼을 저장해둔 '원본' 머티리얼 리스트의 배열로 되돌립니다.
+        _renderer.materials = _originalMaterials.ToArray();
     }
 }

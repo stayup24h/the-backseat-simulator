@@ -1833,8 +1833,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Interactable
   promptMessage: "[E] \uC0C1\uD638\uC791\uC6A9"
-  highlightColor: {r: 1, g: 1, b: 1, a: 1}
-  highlightIntensity: 0.5
+  highlightMaterial: {fileID: 0}
   onInteract:
     m_PersistentCalls:
       m_Calls:
@@ -1937,8 +1936,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Interactable
   promptMessage: "[E] \uC0C1\uD638\uC791\uC6A9"
-  highlightColor: {r: 1, g: 1, b: 1, a: 1}
-  highlightIntensity: 1.5
+  highlightMaterial: {fileID: 2100000, guid: 41f0f3c0a4a11294792ed97b6cbf05c6, type: 2}
   onInteract:
     m_PersistentCalls:
       m_Calls:
@@ -2057,6 +2055,10 @@ PrefabInstance:
       propertyPath: m_Materials.Array.size
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -7945878964044451655, guid: 5e77b52e25047544aa3968b5859a19d0, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: -3846018093981099296, guid: 5e77b52e25047544aa3968b5859a19d0, type: 3}
     - target: {fileID: -7945878964044451655, guid: 5e77b52e25047544aa3968b5859a19d0, type: 3}
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
