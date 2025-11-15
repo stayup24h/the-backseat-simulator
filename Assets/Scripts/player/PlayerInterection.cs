@@ -99,11 +99,9 @@ public class PlayerInteraction : MonoBehaviour
     /// </summary>
     public void OnInteract(InputValue value)
     {
-        Debug.Log("OnInteract");
         // 버튼을 눌렀고, 현재 바라보고 있는 상호작용 오브젝트가 있다면
         if (value.isPressed && currentInteractable != null)
         {
-            Debug.Log("인터렉션");
             currentInteractable.Interact();
         }
     }
