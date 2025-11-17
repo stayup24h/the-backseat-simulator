@@ -1,10 +1,18 @@
 ﻿title: test
 ---
-Mom: Hi there! How can I help you today?
-Dad: Hello! I have a question about our family trip.
-Younger Sister: Sure! What would you like to know?
-Mom: We're planning to visit the mountains next weekend.
-Dad: That sounds exciting! Do we have everything we need for the trip?
-Younger Sister: I can help pack the snacks!
-Mom: Great idea! Let's make a list of what to bring.
+엄마: Hi there! How can I help you today?
+아빠: Hello! I have a question about our family trip.
+동생: Sure! What would you like to know?
+엄마: We're planning to visit the mountains next weekend.
+아빠: That sounds exciting! Do we have everything we need for the trip?
+동생: I can help pack the snacks!
+엄마: Great idea! Let's make a list of what to bring.
+===
+
+
+title: Donut
+---
+엄마: 이 도넛이 개발자가 3시간이나 걸려서 만들었다고 해.
+아빠: 블렌더는 어렵구나...
+동생: 블렌더는 튜토리얼 보고 따라해서 쉬웠는데 유니티로 옮기는게 더 어려웠대.
 ===

@@ -1,7 +1,7 @@
 using UnityEngine;
 using Yarn.Unity;
 
-public class DialogueManager : MonoBehaviour
+public class DialogueManager : SingletonBehaviour<DialogueManager>
 {
     [SerializeField]
     private DialogueRunner dialogueRunner;
@@ -18,8 +18,9 @@ public class DialogueManager : MonoBehaviour
         
     }
 
-    public void TestDialogue()
+    public void StartDialogue(string dialogueNode)
     {
-        dialogueRunner.StartDialogue("test");
+        GameManager.Instance.DecreaseOnInteract();
+        dialogueRunner.StartDialogue(dialogueNode);
     }
 }

@@ -14,6 +14,9 @@ public class PlayerCtrl : MonoBehaviour
 
     void Start()
     {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+        
         if (cameraTransform == null)
         {
             cameraTransform = GetComponentInChildren<Camera>().transform;
