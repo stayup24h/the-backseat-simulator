@@ -110,6 +110,8 @@ public class PlayerInteraction : MonoBehaviour
         {
             currentInteractable.Interact();
             lockStartTime = Time.time;
+            Cursor.lockState = CursorLockMode.Locked; // 커서 숨기기
+            Cursor.visible = false;
         }
         else if (value.isPressed && dialogueRunner != null && dialogueRunner.IsDialogueRunning )
         {
