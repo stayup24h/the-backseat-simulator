@@ -1,11 +1,13 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Yarn.Unity;
 
 public class PlayerCtrl : MonoBehaviour
 {
     public float mouseSensitivity = 100f;
     public Transform cameraTransform;
-
+    
+    
     private float xRotation = 0f;
     private Vector2 lookInput;
     

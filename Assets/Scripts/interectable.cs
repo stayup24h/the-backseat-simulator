@@ -5,7 +5,7 @@ public class Interactable : MonoBehaviour
 {
     [Header("UI 설정")]
     [Tooltip("UI에 표시될 상호작용 프롬프트 메시지")]
-    public string promptMessage = "[E] 상호작용";
+    public string promptMessage = "상호작용";
 
     [Header("하이라이트 레이어 설정")]
     [Tooltip("오브젝트가 하이라이트될 때 변경될 레이어 이름")]

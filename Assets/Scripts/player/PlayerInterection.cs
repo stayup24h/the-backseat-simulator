@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using TMPro; // TextMeshPro를 사용하기 위해 필요
+using TMPro;
+using Yarn.Unity; // TextMeshPro를 사용하기 위해 필요
 
 public class PlayerInteraction : MonoBehaviour
 {
@@ -18,6 +19,11 @@ public class PlayerInteraction : MonoBehaviour
     [Tooltip("상호작용 프롬프트 텍스트 (TMP_Text)")]
     public TMP_Text interactionText;
 
+    private float lockStartTime;
+    [SerializeField] private float inputCooldown = 0.5f;
+    
+    [SerializeField] public DialogueRunner dialogueRunner;
+    
     // 현재 바라보고 있는 Interactable
     private Interactable currentInteractable;
 
@@ -103,6 +109,17 @@ public class PlayerInteraction : MonoBehaviour
         if (value.isPressed && currentInteractable != null)
         {
             currentInteractable.Interact();
+            lockStartTime = Time.time;
+        }
+        else if (value.isPressed && dialogueRunner != null && dialogueRunner.IsDialogueRunning )
+        {
+            if (Time.time - lockStartTime < inputCooldown)
+            {
+                return;
+            }
+            
+            dialogueRunner.RequestNextLine();
+            lockStartTime = Time.time;
         }
     }
 }
