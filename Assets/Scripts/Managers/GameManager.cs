@@ -19,6 +19,8 @@ public class GameManager : SingletonBehaviour<GameManager>
     [SerializeField] public bool[] pictures;
     [SerializeField] public int numPictures = 3;
     
+    [Header("directing")]
+    public DaynightController daynightController;
     void Start()
     {
         Initialize();
@@ -82,6 +84,18 @@ public class GameManager : SingletonBehaviour<GameManager>
             Debug.LogError("Concentration Slider가 GameManager에 연결되지 않았습니다!");
         }
         
+    }
+    
+    public float ConcentrationRatio
+    {
+        get 
+        {
+            // 0으로 나누기 방지
+            if (maxConcentration == 0) return 0f;
+        
+            // 현재값 / 최대값 (예: 50 / 100 = 0.5)
+            return currentConcentration / maxConcentration;
+        }
     }
     
     // --- 게임 오버 처리 ---
