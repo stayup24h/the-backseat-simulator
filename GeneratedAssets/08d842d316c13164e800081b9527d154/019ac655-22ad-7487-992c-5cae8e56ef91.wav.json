@@ -1,0 +1,13 @@
+{
+    "asset": "08d842d316c13164e800081b9527d154",
+    "fileName": "019ac655-22ad-7487-992c-5cae8e56ef91.wav",
+    "prompt": "car driving sound",
+    "negativePrompt": "",
+    "model": "5de0686a-fb27-40e5-9df0-28ae810d70ca",
+    "modelName": "ElevenLabs Sound Effects V2",
+    "customSeed": -1,
+    "w3CTraceId": "62300dddaba1c124db554fddee5cb313",
+    "duration": 10.0,
+    "autoTrim": false,
+    "hasReference": false
+}

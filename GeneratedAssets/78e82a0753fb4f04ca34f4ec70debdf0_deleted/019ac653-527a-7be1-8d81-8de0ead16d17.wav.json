@@ -1,0 +1,13 @@
+{
+    "asset": "78e82a0753fb4f04ca34f4ec70debdf0",
+    "fileName": "019ac653-527a-7be1-8d81-8de0ead16d17.wav",
+    "prompt": "car engine noise",
+    "negativePrompt": "",
+    "model": "5de0686a-fb27-40e5-9df0-28ae810d70ca",
+    "modelName": "ElevenLabs Sound Effects V2",
+    "customSeed": -1,
+    "w3CTraceId": "aedffe47d89e06127a6feb42ade91ff2",
+    "duration": 10.0,
+    "autoTrim": false,
+    "hasReference": false
+}
