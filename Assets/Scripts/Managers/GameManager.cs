@@ -11,7 +11,8 @@ public class GameManager : SingletonBehaviour<GameManager>
 
     private float currentConcentration; // 현재 집중력
     private bool isGameOver = false; // 게임 오버 상태 플래그
-
+    private bool isGamestart = false;
+    
     // --- UI 연결 ---
     [Header("UI")]
     public Slider concentrationSlider; // 인스펙터에서 연결할 슬라이더
@@ -23,13 +24,13 @@ public class GameManager : SingletonBehaviour<GameManager>
     public DaynightController daynightController;
     void Start()
     {
-        Initialize();
+        GameStart();
     }
     
     // Update is called once per frame
     void Update()
     {
-        if (isGameOver) return;
+        if (isGameOver|| !isGamestart) return;
 
         // 1. 시간에 따라 집중력 감소
         if (currentConcentration > 0)
@@ -43,6 +44,14 @@ public class GameManager : SingletonBehaviour<GameManager>
             currentConcentration = 0;
             HandleGameOver();
         }
+    }
+    
+    void GameStart()
+    {
+        isGamestart = true;
+        Initialize();
+        daynightController.Initialize();
+        SoundManager.Instance.PlayBGM("noise");
     }
     
     // --- UI 업데이트 ---
