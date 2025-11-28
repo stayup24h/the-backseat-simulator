@@ -16,10 +16,7 @@ MonoBehaviour:
   clips:
   - clip: {fileID: 8300000, guid: 08d842d316c13164e800081b9527d154, type: 3}
     volume: 1
-    pitch: 1.1
-  - clip: {fileID: 8300000, guid: c9c1526cb5b399d45a2784f28f563bd7, type: 3}
-    volume: 1
     pitch: 1
-  masterVolume: 0.7
+  masterVolume: 1
   masterPitch: 1
   playMode: 1
