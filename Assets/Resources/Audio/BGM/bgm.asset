@@ -12,8 +12,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48ef03b3cb4cefe43978b492e1bd26b8, type: 3}
   m_Name: bgm
   m_EditorClassIdentifier: Assembly-CSharp::SoundDataSO
-  soundName: 
-  clips: []
-  masterVolume: 1
+  soundName: bgm
+  clips:
+  - clip: {fileID: 8300000, guid: 101a10e0ae50d1843847c1f7625882f3, type: 3}
+    volume: 1
+    pitch: 1
+  - clip: {fileID: 8300000, guid: a9893c6d6cb11da45bec269f4248fb1b, type: 3}
+    volume: 1
+    pitch: 1
+  - clip: {fileID: 8300000, guid: 3c614a760a3a1c24aa1163fa9b216310, type: 3}
+    volume: 1
+    pitch: 1
+  - clip: {fileID: 8300000, guid: 5834f64c09349b24390d8315d470a0ef, type: 3}
+    volume: 1
+    pitch: 1
+  - clip: {fileID: 8300000, guid: dfe65411e05e01a4689ca7d0f5f17077, type: 3}
+    volume: 1
+    pitch: 1
+  - clip: {fileID: 8300000, guid: eff2f56e37118fa4d8fbfcb9f0182161, type: 3}
+    volume: 1
+    pitch: 1
+  - clip: {fileID: 8300000, guid: eff2f56e37118fa4d8fbfcb9f0182161, type: 3}
+    volume: 1
+    pitch: 1
+  masterVolume: 0.1
   masterPitch: 1
   playMode: 0

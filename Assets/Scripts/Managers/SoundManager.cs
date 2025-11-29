@@ -1,11 +1,18 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Audio;
 
 public enum SoundType { BGM, Noise, SFX }
 
 public class SoundManager : SingletonBehaviour<SoundManager>
 {
+    [Header("Audio Mixer")]
+    public AudioMixerGroup bgmMixerGroup;
+
+    [Header("Audio Source Targets")]
+    public Transform bgmSourceTarget; // BGM 소스를 붙일 타겟 오브젝트
+
     [Header("Volume Settings")]
     [Range(0f, 1f)] public float masterVolume = 1.0f;
     [Range(0f, 1f)] public float bgmVolume = 0.5f;
@@ -15,6 +22,7 @@ public class SoundManager : SingletonBehaviour<SoundManager>
 
     // 내부 오디오 소스
     private AudioSource bgmSourceA, bgmSourceB, activeBgmSource;
+    private GameObject bgmChannelObject; // BGM 소스를 담을 오브젝트
     private AudioSource noiseSourceA, noiseSourceB, activeNoiseSource;
     private GameObject noiseChannelObject; // Noise 소스를 담을 오브젝트
     
@@ -38,8 +46,11 @@ public class SoundManager : SingletonBehaviour<SoundManager>
     void Initialize()
     {
         // 1. AudioSource 생성 및 설정
-        bgmSourceA = gameObject.AddComponent<AudioSource>();
-        bgmSourceB = gameObject.AddComponent<AudioSource>();
+        bgmChannelObject = new GameObject("BGMChannel");
+        bgmChannelObject.transform.SetParent(bgmSourceTarget != null ? bgmSourceTarget : this.transform);
+        bgmChannelObject.transform.localPosition = Vector3.zero;
+        bgmSourceA = bgmChannelObject.AddComponent<AudioSource>();
+        bgmSourceB = bgmChannelObject.AddComponent<AudioSource>();
 
         // Noise 채널용 오브젝트 생성
         noiseChannelObject = new GameObject("NoiseChannel");
@@ -47,8 +58,8 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         noiseSourceA = noiseChannelObject.AddComponent<AudioSource>();
         noiseSourceB = noiseChannelObject.AddComponent<AudioSource>();
 
-        ConfigureAudioSource(bgmSourceA);
-        ConfigureAudioSource(bgmSourceB);
+        ConfigureAudioSource(bgmSourceA, true, bgmMixerGroup);
+        ConfigureAudioSource(bgmSourceB, true, bgmMixerGroup);
         ConfigureAudioSource(noiseSourceA, true);
         ConfigureAudioSource(noiseSourceB, true);
 
@@ -61,16 +72,21 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         activeNoiseSource = noiseSourceA;
     }
 
-    void ConfigureAudioSource(AudioSource source, bool is3D = false)
+    void ConfigureAudioSource(AudioSource source, bool is3D = false, AudioMixerGroup mixerGroup = null)
     {
         source.loop = false;
         source.playOnAwake = false;
+        source.outputAudioMixerGroup = mixerGroup;
         if (is3D)
         {
             source.spatialBlend = 1.0f; // 기본 3D로 설정
             source.rolloffMode = AudioRolloffMode.Linear;
             source.minDistance = 1f;
             source.maxDistance = 50f;
+        }
+        else
+        {
+            source.spatialBlend = 0f;
         }
     }
 
@@ -356,5 +372,16 @@ public class SoundManager : SingletonBehaviour<SoundManager>
             default: return null;
         }
     }
-}
 
+    public void bgmOnOff(string bgmName)
+    {
+        if (activeBgmSource.isPlaying)
+        {
+            activeBgmSource.Pause();
+        }
+        else
+        {
+            PlayBGM(bgmName);
+        }
+    }
+}
