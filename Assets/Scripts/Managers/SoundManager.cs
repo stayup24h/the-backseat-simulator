@@ -2,25 +2,28 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+public enum SoundType { BGM, Noise, SFX }
+
 public class SoundManager : SingletonBehaviour<SoundManager>
 {
     [Header("Volume Settings")]
     [Range(0f, 1f)] public float masterVolume = 1.0f;
     [Range(0f, 1f)] public float bgmVolume = 0.5f;
+    [Range(0f, 1f)] public float noiseVolume = 0.5f;
     [Range(0f, 1f)] public float sfxVolume = 1.0f;
     public float crossFadeDuration = 2.0f; // BGM 전환 시간
 
-    // 내부 오디오 소스 (크로스페이드용 2개)
-    private AudioSource bgmSourceA;
-    private AudioSource bgmSourceB;
-    private AudioSource activeBgmSource;
-
+    // 내부 오디오 소스
+    private AudioSource bgmSourceA, bgmSourceB, activeBgmSource;
+    private AudioSource noiseSourceA, noiseSourceB, activeNoiseSource;
+    
     // 현재 재생 정보
-    private SoundDataSO currentBgmSO;
-    private SoundDataSO.ClipData currentBgmClipData;
+    private SoundDataSO currentBgmSO, currentNoiseSO;
+    private SoundDataSO.ClipData currentBgmClipData, currentNoiseClipData;
 
     // 데이터 검색용 딕셔너리
     private Dictionary<string, SoundDataSO> bgmDictionary = new Dictionary<string, SoundDataSO>();
+    private Dictionary<string, SoundDataSO> noiseDictionary = new Dictionary<string, SoundDataSO>();
     private Dictionary<string, SoundDataSO> sfxDictionary = new Dictionary<string, SoundDataSO>();
 
     private bool isCrossFading = false;    
@@ -36,18 +39,27 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         // 1. AudioSource 생성 및 설정
         bgmSourceA = gameObject.AddComponent<AudioSource>();
         bgmSourceB = gameObject.AddComponent<AudioSource>();
+        noiseSourceA = gameObject.AddComponent<AudioSource>();
+        noiseSourceB = gameObject.AddComponent<AudioSource>();
 
-        // 코드로 루프를 제어하므로 Unity 기본 루프는 끔
-        bgmSourceA.loop = false;
-        bgmSourceB.loop = false;
-        bgmSourceA.playOnAwake = false;
-        bgmSourceB.playOnAwake = false;
+        ConfigureAudioSource(bgmSourceA);
+        ConfigureAudioSource(bgmSourceB);
+        ConfigureAudioSource(noiseSourceA);
+        ConfigureAudioSource(noiseSourceB);
 
         // 2. Resources 폴더에서 데이터 자동 로드
         LoadSoundData("Audio/BGM", bgmDictionary);
+        LoadSoundData("Audio/Noise", noiseDictionary); // 딕셔너리 수정
         LoadSoundData("Audio/SFX", sfxDictionary);
 
         activeBgmSource = bgmSourceA;
+        activeNoiseSource = noiseSourceA;
+    }
+
+    void ConfigureAudioSource(AudioSource source)
+    {
+        source.loop = false;
+        source.playOnAwake = false;
     }
 
     // Resources 로드 헬퍼 함수
@@ -64,26 +76,20 @@ public class SoundManager : SingletonBehaviour<SoundManager>
 
     void Update()
     {
-        // 1. 안전장치: 데이터나 소스가 없으면 아무것도 안 함
-        if (currentBgmSO == null || activeBgmSource == null || activeBgmSource.clip == null) return;
+        UpdateChannel(activeBgmSource, currentBgmSO, SoundType.BGM);
+        UpdateChannel(activeNoiseSource, currentNoiseSO, SoundType.Noise);
+    }
 
-        // 2. 이미 크로스페이드 중이라면 중복 실행 방지
-        if (isCrossFading) return;
+    private void UpdateChannel(AudioSource activeSource, SoundDataSO currentSO, SoundType type)
+    {
+        if (currentSO == null || activeSource == null || activeSource.clip == null || isCrossFading) return;
 
-        // 3. [핵심 변경] "곡이 완전히 끝났을 때"가 아니라, "끝나기 직전"을 감지해야 함
-        // 남은 시간 = 전체 길이 - 현재 재생 시간
-        float remainingTime = activeBgmSource.clip.length - activeBgmSource.time;
+        float remainingTime = activeSource.clip.length - activeSource.time;
 
-        // 4. 재생 중이고, 남은 시간이 '크로스페이드 시간'보다 적게 남았다면? -> 교체 시작!
-        if (activeBgmSource.isPlaying && remainingTime <= crossFadeDuration)
+        if ((activeSource.isPlaying && remainingTime <= crossFadeDuration) ||
+            (!activeSource.isPlaying && activeSource.time >= activeSource.clip.length - 0.1f))
         {
-            PlayNextTrackInPlaylist();
-        }
-        
-        // (혹시 모를 예외 처리: 재생 중이 아닌데 시간이 끝까지 갔다면 바로 넘김)
-        else if (!activeBgmSource.isPlaying && activeBgmSource.time >= activeBgmSource.clip.length)
-        {
-            PlayNextTrackInPlaylist();
+            PlayNextTrackInPlaylist(currentSO, type);
         }
     }
 
@@ -151,106 +157,170 @@ public class SoundManager : SingletonBehaviour<SoundManager>
     }
 
     // ===========================
-    // 🎵 3. BGM 재생 (플레이리스트 시작)
+    // 🎵 3. BGM/Noise 재생 (플레이리스트 시작)
     // ===========================
-    public void PlayBGM(string name)
-    {
-        Debug.Log($"PlayBGM 호출: {name}");
-        if (!bgmDictionary.ContainsKey(name)) return;
-        SoundDataSO nextSO = bgmDictionary[name];
+    public void PlayBGM(string name) => PlayPlaylist(name, SoundType.BGM);
+    public void PlayNoise(string name) => PlayPlaylist(name, SoundType.Noise);
 
-        // 다른 플레이리스트로 바꿀 때만 실행
-        if (currentBgmSO != nextSO)
+    private void PlayPlaylist(string name, SoundType type)
+    {
+        var dict = GetDictionary(type);
+        if (dict == null || !dict.ContainsKey(name))
         {
-            currentBgmSO = nextSO;
-            PlayNextTrackInPlaylist();
+            Debug.LogWarning($"Sound '{name}' of type {type} not found.");
+            return;
+        }
+        
+        var nextSO = dict[name];
+
+        if (type == SoundType.BGM)
+        {
+            if (currentBgmSO != nextSO)
+            {
+                currentBgmSO = nextSO;
+                PlayNextTrackInPlaylist(currentBgmSO, type);
+            }
+        }
+        else if (type == SoundType.Noise)
+        {
+            if (currentNoiseSO != nextSO)
+            {
+                currentNoiseSO = nextSO;
+                PlayNextTrackInPlaylist(currentNoiseSO, type);
+            }
         }
     }
 
     // 플레이리스트 다음 곡 재생
-    private void PlayNextTrackInPlaylist()
+    private void PlayNextTrackInPlaylist(SoundDataSO currentSoundSO, SoundType type)
     {
-        if (currentBgmSO == null) return;
+        if (currentSoundSO == null) return;
 
-        SoundDataSO.ClipData nextClipData = currentBgmSO.GetNextClipData();
+        SoundDataSO.ClipData nextClipData = currentSoundSO.GetNextClipData();
         if (nextClipData == null) return;
 
-        currentBgmClipData = nextClipData;
+        if (type == SoundType.BGM)
+            currentBgmClipData = nextClipData;
+        else if (type == SoundType.Noise)
+            currentNoiseClipData = nextClipData;
+        
         StopAllCoroutines();
-        StartCoroutine(CrossFadeBGM(nextClipData));
+        StartCoroutine(CrossFade(nextClipData, type));
     }
 
-    IEnumerator CrossFadeBGM(SoundDataSO.ClipData clipData)
+    IEnumerator CrossFade(SoundDataSO.ClipData clipData, SoundType type)
     {
         isCrossFading = true; // 전환 중 표시
 
-        // 1. 다음 소스 결정 (A <-> B 스위칭)
-        AudioSource nextSource = (activeBgmSource == bgmSourceA) ? bgmSourceB : bgmSourceA;
+        // 1. 타입에 맞는 오디오 소스와 정보 가져오기
+        AudioSource activeSource, sourceA, sourceB;
+        SoundDataSO currentSO;
 
-        // 2. 다음 소스 세팅
+        if (type == SoundType.BGM)
+        {
+            activeSource = activeBgmSource;
+            sourceA = bgmSourceA;
+            sourceB = bgmSourceB;
+            currentSO = currentBgmSO;
+        }
+        else // Noise
+        {
+            activeSource = activeNoiseSource;
+            sourceA = noiseSourceA;
+            sourceB = noiseSourceB;
+            currentSO = currentNoiseSO;
+        }
+
+        // 2. 다음 소스 결정 (A <-> B 스위칭)
+        AudioSource nextSource = (activeSource == sourceA) ? sourceB : sourceA;
+
+        // 3. 다음 소스 세팅
         nextSource.clip = clipData.clip;
-        nextSource.pitch = currentBgmSO.masterPitch * clipData.pitch;
+        nextSource.pitch = currentSO.masterPitch * clipData.pitch;
         nextSource.volume = 0f; // 🔴 시작할 때 0이어야 서서히 커짐
         nextSource.Play();
 
         float timer = 0f;
         
-        // 목표 볼륨 계산
-        float targetVolume = GetCurrentBGMTargetVolume();
-        float startVolume = activeBgmSource.volume; // 현재 곡의 볼륨
+        // 4. 목표 볼륨 계산
+        float targetVolume = GetTargetVolume(type);
+        float startVolume = activeSource.volume; // 현재 곡의 볼륨
         
-
         while (timer < crossFadeDuration)
         {
             timer += Time.deltaTime;
             float ratio = timer / crossFadeDuration;
 
             // 이전 곡 볼륨 줄이기
-            if (activeBgmSource.isPlaying)
-                activeBgmSource.volume = Mathf.Lerp(startVolume, 0f, ratio);
+            if (activeSource.isPlaying)
+                activeSource.volume = Mathf.Lerp(startVolume, 0f, ratio);
 
             // 다음 곡 볼륨 키우기
             nextSource.volume = Mathf.Lerp(0f, targetVolume, ratio);
 
-            // 🔍 [디버깅] 진행 상황을 로그로 확인 (너무 많이 뜨면 주석 처리하세요)
-            // Debug.Log($"   Running... Ratio: {ratio:F2} / Vol A: {activeBgmSource.volume:F2} / Vol B: {nextSource.volume:F2}");
-
-            yield return null; // ⚠️ 이게 없으면 즉시 끝납니다!
+            yield return null;
         }
 
-        // 마무리
-        activeBgmSource.Stop();
-        activeBgmSource.volume = 0f;
-        
+        // 5. 마무리
+        activeSource.Stop();
+        activeSource.volume = 0f;
         nextSource.volume = targetVolume;
 
-        // 🔴 [핵심] 활성 소스 교체 (다음 번엔 반대로 작동하도록)
-        activeBgmSource = nextSource;
+        // 6. 활성 소스 교체
+        if (type == SoundType.BGM)
+            activeBgmSource = nextSource;
+        else
+            activeNoiseSource = nextSource;
 
         isCrossFading = false; // 전환 끝
     }
-
+    
     // ===========================
     // 🎚️ 4. 볼륨 조절 및 유틸
     // ===========================
     
-    // 현재 BGM의 목표 볼륨 계산
-    private float GetCurrentBGMTargetVolume()
+    // 현재 BGM/Noise의 목표 볼륨 계산
+    private float GetTargetVolume(SoundType type)
     {
-        if (currentBgmSO == null || currentBgmClipData == null) return 0f;
-        return masterVolume * bgmVolume * currentBgmSO.masterVolume * currentBgmClipData.volume;
+        if (type == SoundType.BGM)
+        {
+            if (currentBgmSO == null || currentBgmClipData == null) return 0f;
+            return masterVolume * bgmVolume * currentBgmSO.masterVolume * currentBgmClipData.volume;
+        }
+        if (type == SoundType.Noise)
+        {
+            if (currentNoiseSO == null || currentNoiseClipData == null) return 0f;
+            return masterVolume * noiseVolume * currentNoiseSO.masterVolume * currentNoiseClipData.volume;
+        }
+        return 0f;
     }
 
     // 옵션 조절 시 실시간 반영
-    public void SetMasterVolume(float vol) { masterVolume = vol; UpdateActiveBGMVolume(); }
-    public void SetBGMVolume(float vol) { bgmVolume = vol; UpdateActiveBGMVolume(); }
+    public void SetMasterVolume(float vol) { masterVolume = vol; UpdateAllActiveVolumes(); }
+    public void SetBGMVolume(float vol) { bgmVolume = vol; UpdateAllActiveVolumes(); }
+    public void SetNoiseVolume(float vol) { noiseVolume = vol; UpdateAllActiveVolumes(); }
     public void SetSFXVolume(float vol) { sfxVolume = vol; }
 
-    private void UpdateActiveBGMVolume()
+    private void UpdateAllActiveVolumes()
     {
         if (activeBgmSource != null && activeBgmSource.isPlaying)
         {
-            activeBgmSource.volume = GetCurrentBGMTargetVolume();
+            activeBgmSource.volume = GetTargetVolume(SoundType.BGM);
+        }
+        if (activeNoiseSource != null && activeNoiseSource.isPlaying)
+        {
+            activeNoiseSource.volume = GetTargetVolume(SoundType.Noise);
+        }
+    }
+
+    private Dictionary<string, SoundDataSO> GetDictionary(SoundType type)
+    {
+        switch (type)
+        {
+            case SoundType.BGM: return bgmDictionary;
+            case SoundType.Noise: return noiseDictionary;
+            case SoundType.SFX: return sfxDictionary;
+            default: return null;
         }
     }
 }

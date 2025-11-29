@@ -85,19 +85,20 @@ public class GameManager : SingletonBehaviour<GameManager>
             titleUICanvasGroup.gameObject.SetActive(false);
         });
         
-        rightHandTransform.DOAnchorPos(rightHandTargetTransform.position, MoveDuration);
-        rightHandTransform.DORotate(rightHandTargetTransform.rotation, MoveDuration);
-        rightHandTransform.DOScale(rightHandTargetTransform.scale, MoveDuration);
         
-        pictureRectTransform.DOAnchorPos(pictureTargetTransform.position, MoveDuration);
-        pictureRectTransform.DORotate(pictureTargetTransform.rotation, MoveDuration);
-        pictureRectTransform.DOScale(pictureTargetTransform.scale, MoveDuration).OnComplete(() =>
+        
+        pictureRectTransform.DOAnchorPos(pictureTargetTransform.position, MoveDuration).SetEase(Ease.OutCirc);
+        pictureRectTransform.DORotate(pictureTargetTransform.rotation, MoveDuration).SetEase(Ease.OutCirc);
+        pictureRectTransform.DOScale(pictureTargetTransform.scale, MoveDuration).SetEase(Ease.OutCirc).OnComplete(() =>
         {
             isGameOver = false;
             Initialize();
             daynightController.Initialize();
             playerCtrl.Initialize();
-            SoundManager.Instance.PlayBGM("noise");
+            SoundManager.Instance.PlayNoise("noise");
+            rightHandTransform.DOAnchorPos(rightHandTargetTransform.position, 1).SetEase(Ease.OutCirc);
+            rightHandTransform.DORotate(rightHandTargetTransform.rotation, 1);
+            rightHandTransform.DOScale(rightHandTargetTransform.scale, 1);
         });
     }
     
