@@ -39,6 +39,7 @@ public class CarVibration : MonoBehaviour
 
     void Update()
     {
+        if (GameManager.Instance.isGameOver) return;
         // 1. 기본 진동 계산 (Perlin Noise)
         // Time.time에 속도를 곱해 노이즈 그래프를 이동시킵니다.
         float noiseY = (Mathf.PerlinNoise(Time.time * shakeSpeed, noiseOffsetPos) - 0.5f) * 2f; // -1 ~ 1 사이 값

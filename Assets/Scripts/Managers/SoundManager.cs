@@ -77,7 +77,6 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         // 4. 재생 중이고, 남은 시간이 '크로스페이드 시간'보다 적게 남았다면? -> 교체 시작!
         if (activeBgmSource.isPlaying && remainingTime <= crossFadeDuration)
         {
-            Debug.Log($"⚡ 크로스페이드 타이밍 진입! (남은 시간: {remainingTime:F2}초 <= 설정값: {crossFadeDuration}초)");
             PlayNextTrackInPlaylist();
         }
         

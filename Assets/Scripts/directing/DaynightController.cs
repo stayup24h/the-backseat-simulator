@@ -35,6 +35,8 @@ public class DaynightController : MonoBehaviour
     void Update()
     {
         // 멈춰있거나 라이트가 없으면 실행 안 함
+        if (GameManager.Instance.isGameOver) return;
+        
         if (!isRunning || directionalLight == null) return;
 
         HandleSunset();

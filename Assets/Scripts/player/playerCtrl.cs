@@ -13,8 +13,8 @@ public class PlayerCtrl : MonoBehaviour
     
     // [추가] 스크립트 잠금 플래그
     private bool isLocked = false;
-
-    void Start()
+    
+    public void Initialize()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
@@ -32,6 +32,7 @@ public class PlayerCtrl : MonoBehaviour
 
     void Update()
     {
+        if (GameManager.Instance.isGameOver) return;
         // [추가] 잠겨있으면 마우스 입력을 처리하지 않음
         if (isLocked)
         {

@@ -34,8 +34,8 @@ public class VignetteController : MonoBehaviour
 
     void Update()
     {
-        if (vignette == null) return;
-
+        if (GameManager.Instance.isGameOver) return;
+        
         // 1. GameManager에서 현재 집중력 비율 가져오기 (1.0 = 가득 참, 0.0 = 바닥남)
         float ratio = GameManager.Instance.ConcentrationRatio;
 

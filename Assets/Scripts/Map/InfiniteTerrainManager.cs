@@ -30,6 +30,7 @@ public class InfiniteTerrainManager : MonoBehaviour
 
     void Update()
     {
+        if (GameManager.Instance.isGameOver) return;
         // 3. 지형 이동 (모든 청크를 뒤로 이동)
         MoveChunks();
     }

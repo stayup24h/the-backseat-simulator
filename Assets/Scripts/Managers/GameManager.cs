@@ -1,6 +1,15 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using DG.Tweening;
+
+[System.Serializable]
+public struct TransformData
+{
+    public Vector3 position;
+    public Vector3 rotation;
+    public Vector3 scale;
+}
 
 public class GameManager : SingletonBehaviour<GameManager>
 {
@@ -8,29 +17,51 @@ public class GameManager : SingletonBehaviour<GameManager>
     public float maxConcentration = 100f; // 최대 집중력
     public float decreasePerSecond = 0.5f; // 초당 감소하는 집중력
     public float decreasePerInteraction = 5f; // 상호작용 시 감소하는 집중력
-
+    
+    public PlayerCtrl playerCtrl;
+    
     private float currentConcentration; // 현재 집중력
-    private bool isGameOver = false; // 게임 오버 상태 플래그
-    private bool isGamestart = false;
+    public bool isGameOver = true; // 게임 오버 상태 플래그
     
     // --- UI 연결 ---
     [Header("UI")]
     public Slider concentrationSlider; // 인스펙터에서 연결할 슬라이더
+    public CanvasGroup titleUICanvasGroup;
     
     [SerializeField] public bool[] pictures;
     [SerializeField] public int numPictures = 3;
+    
+    [Header("Picture Movement")]
+    public float MoveDuration = 2.0f;
+    public RectTransform pictureRectTransform; // 인스펙터에서 이동시킬 Picture 오브젝트의 Transform을 할당
+    public TransformData pictureStartTransform; // 시작 위치
+    public TransformData pictureTargetTransform; // 이동할 목표 위치
+    
+    public RectTransform rightHandTransform;
+    public TransformData rightHandStartTransform;
+    public TransformData rightHandTargetTransform;
+    
+    public RectTransform leftHandTransform;
+    public TransformData leftHandStartTransform;
+    public TransformData leftHandTargetTransform;
     
     [Header("directing")]
     public DaynightController daynightController;
     void Start()
     {
-        GameStart();
+       isGameOver = true;
+       if (pictureRectTransform != null)
+       {
+           pictureRectTransform.anchoredPosition = pictureStartTransform.position;
+           pictureRectTransform.eulerAngles = pictureStartTransform.rotation;
+           pictureRectTransform.localScale = pictureStartTransform.scale;
+       }
     }
     
     // Update is called once per frame
     void Update()
     {
-        if (isGameOver|| !isGamestart) return;
+        if (isGameOver) return;
 
         // 1. 시간에 따라 집중력 감소
         if (currentConcentration > 0)
@@ -46,18 +77,34 @@ public class GameManager : SingletonBehaviour<GameManager>
         }
     }
     
-    void GameStart()
+    public void GameStart()
     {
-        isGamestart = true;
-        Initialize();
-        daynightController.Initialize();
-        SoundManager.Instance.PlayBGM("noise");
+      
+        titleUICanvasGroup.DOFade(0f, 1.0f).OnComplete(() =>
+        {
+            titleUICanvasGroup.gameObject.SetActive(false);
+        });
+        
+        rightHandTransform.DOAnchorPos(rightHandTargetTransform.position, MoveDuration);
+        rightHandTransform.DORotate(rightHandTargetTransform.rotation, MoveDuration);
+        rightHandTransform.DOScale(rightHandTargetTransform.scale, MoveDuration);
+        
+        pictureRectTransform.DOAnchorPos(pictureTargetTransform.position, MoveDuration);
+        pictureRectTransform.DORotate(pictureTargetTransform.rotation, MoveDuration);
+        pictureRectTransform.DOScale(pictureTargetTransform.scale, MoveDuration).OnComplete(() =>
+        {
+            isGameOver = false;
+            Initialize();
+            daynightController.Initialize();
+            playerCtrl.Initialize();
+            SoundManager.Instance.PlayBGM("noise");
+        });
     }
     
     // --- UI 업데이트 ---
     private void UpdateConcentrationUI()
     {
-        if (concentrationSlider != null)
+        if ( concentrationSlider != null)
         {
             concentrationSlider.value = currentConcentration;
         }

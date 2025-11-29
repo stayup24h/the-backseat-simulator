@@ -48,6 +48,7 @@ public class Interactable : MonoBehaviour
     /// </summary>
     public void Highlight()
     {
+        if (highlightLayerName == "") return;
         // 하이라이트 레이어를 못 찾았거나 이미 하이라이트된 상태면 무시
         if (_isHighlighted || highlightLayerIndex == -1) return;
 

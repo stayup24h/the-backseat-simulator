@@ -15,7 +15,7 @@ MonoBehaviour:
   soundName: noise
   clips:
   - clip: {fileID: 8300000, guid: 08d842d316c13164e800081b9527d154, type: 3}
-    volume: 1
+    volume: 0.8
     pitch: 1
   masterVolume: 1
   masterPitch: 1
