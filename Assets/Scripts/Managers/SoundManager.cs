@@ -16,6 +16,7 @@ public class SoundManager : SingletonBehaviour<SoundManager>
     // 내부 오디오 소스
     private AudioSource bgmSourceA, bgmSourceB, activeBgmSource;
     private AudioSource noiseSourceA, noiseSourceB, activeNoiseSource;
+    private GameObject noiseChannelObject; // Noise 소스를 담을 오브젝트
     
     // 현재 재생 정보
     private SoundDataSO currentBgmSO, currentNoiseSO;
@@ -39,13 +40,17 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         // 1. AudioSource 생성 및 설정
         bgmSourceA = gameObject.AddComponent<AudioSource>();
         bgmSourceB = gameObject.AddComponent<AudioSource>();
-        noiseSourceA = gameObject.AddComponent<AudioSource>();
-        noiseSourceB = gameObject.AddComponent<AudioSource>();
+
+        // Noise 채널용 오브젝트 생성
+        noiseChannelObject = new GameObject("NoiseChannel");
+        noiseChannelObject.transform.SetParent(this.transform);
+        noiseSourceA = noiseChannelObject.AddComponent<AudioSource>();
+        noiseSourceB = noiseChannelObject.AddComponent<AudioSource>();
 
         ConfigureAudioSource(bgmSourceA);
         ConfigureAudioSource(bgmSourceB);
-        ConfigureAudioSource(noiseSourceA);
-        ConfigureAudioSource(noiseSourceB);
+        ConfigureAudioSource(noiseSourceA, true);
+        ConfigureAudioSource(noiseSourceB, true);
 
         // 2. Resources 폴더에서 데이터 자동 로드
         LoadSoundData("Audio/BGM", bgmDictionary);
@@ -56,10 +61,17 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         activeNoiseSource = noiseSourceA;
     }
 
-    void ConfigureAudioSource(AudioSource source)
+    void ConfigureAudioSource(AudioSource source, bool is3D = false)
     {
         source.loop = false;
         source.playOnAwake = false;
+        if (is3D)
+        {
+            source.spatialBlend = 1.0f; // 기본 3D로 설정
+            source.rolloffMode = AudioRolloffMode.Linear;
+            source.minDistance = 1f;
+            source.maxDistance = 50f;
+        }
     }
 
     // Resources 로드 헬퍼 함수
@@ -160,7 +172,28 @@ public class SoundManager : SingletonBehaviour<SoundManager>
     // 🎵 3. BGM/Noise 재생 (플레이리스트 시작)
     // ===========================
     public void PlayBGM(string name) => PlayPlaylist(name, SoundType.BGM);
-    public void PlayNoise(string name) => PlayPlaylist(name, SoundType.Noise);
+    public void PlayNoise(string name)
+    {
+        // 2D 노이즈를 위해 위치와 spatial blend 초기화
+        if (noiseChannelObject != null)
+        {
+            noiseChannelObject.transform.localPosition = Vector3.zero;
+            noiseSourceA.spatialBlend = 0f;
+            noiseSourceB.spatialBlend = 0f;
+        }
+        PlayPlaylist(name, SoundType.Noise);
+    }
+
+    public void PlayPositionalNoise(string name, Vector3 position, float spatialBlend)
+    {
+        if (noiseChannelObject != null)
+        {
+            noiseChannelObject.transform.position = position;
+            noiseSourceA.spatialBlend = spatialBlend;
+            noiseSourceB.spatialBlend = spatialBlend;
+        }
+        PlayPlaylist(name, SoundType.Noise);
+    }
 
     private void PlayPlaylist(string name, SoundType type)
     {
@@ -324,3 +357,4 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         }
     }
 }
+

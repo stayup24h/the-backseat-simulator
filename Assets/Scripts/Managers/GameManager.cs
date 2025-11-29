@@ -45,6 +45,10 @@ public class GameManager : SingletonBehaviour<GameManager>
     public TransformData leftHandStartTransform;
     public TransformData leftHandTargetTransform;
     
+    [Header("Sound Settings")]
+    public Vector3 noisePosition; // Noise 사운드를 재생할 위치
+    [Range(0f, 1f)] public float noiseSpatialBlend = 0.4f; // Noise의 Spatial Blend 값
+
     [Header("directing")]
     public DaynightController daynightController;
     void Start()
@@ -95,7 +99,7 @@ public class GameManager : SingletonBehaviour<GameManager>
             Initialize();
             daynightController.Initialize();
             playerCtrl.Initialize();
-            SoundManager.Instance.PlayNoise("noise");
+            SoundManager.Instance.PlayPositionalNoise("noise", noisePosition, noiseSpatialBlend);
             rightHandTransform.DOAnchorPos(rightHandTargetTransform.position, 1).SetEase(Ease.OutCirc);
             rightHandTransform.DORotate(rightHandTargetTransform.rotation, 1);
             rightHandTransform.DOScale(rightHandTargetTransform.scale, 1);

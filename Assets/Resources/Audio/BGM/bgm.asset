@@ -10,13 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 48ef03b3cb4cefe43978b492e1bd26b8, type: 3}
-  m_Name: BGM data
+  m_Name: bgm
   m_EditorClassIdentifier: Assembly-CSharp::SoundDataSO
-  soundName: noise
-  clips:
-  - clip: {fileID: 8300000, guid: 08d842d316c13164e800081b9527d154, type: 3}
-    volume: 1
-    pitch: 1
+  soundName: 
+  clips: []
   masterVolume: 1
   masterPitch: 1
-  playMode: 1
+  playMode: 0
