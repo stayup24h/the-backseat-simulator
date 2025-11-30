@@ -32,14 +32,30 @@ title: RecallWithPhoto
 title : thatSong
 ---
 : 대충 어린 시절에 들었던 노래 생각나는 내용
+<<getPicture @GameManager 0>>
 ===
 
 title: Light
 ---
 : 운전 중에 내부등 키면 눈부셔서 불편한 내용
+<<getPicture @GameManager 1>>
 ===
 
-title: fingerRunning
+title: FingerRunning
 ---
 : 졸린걸 참으려고 손가락으로 차창밖 풍경을 가지고 노는 내용
+<<getPicture @GameManager 2>>
+===
+
+title: GameOver
+---
+: 졸려서 자버렸다.
+<<wait 1>>
+<<gotoTitle @GameManager>>
+===
+
+title: Ending
+---
+: 그땐 그랬지.
+<<gotoTitle @GameManager>>
 ===

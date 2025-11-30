@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using DG.Tweening;
+using Yarn.Unity;
 
 [System.Serializable]
 public struct TransformData
@@ -10,6 +11,14 @@ public struct TransformData
     public Vector3 rotation;
     public Vector3 scale;
 }
+
+[System.Serializable]
+public class PictureInfo
+{
+    public bool isGot;
+    public GameObject pictureObject;
+}
+
 
 public class GameManager : SingletonBehaviour<GameManager>
 {
@@ -29,8 +38,10 @@ public class GameManager : SingletonBehaviour<GameManager>
     public CanvasGroup titleUICanvasGroup;
     [SerializeField] public GameObject pausePopup;
     
-    [SerializeField] public bool[] pictures;
+    
     [SerializeField] public int numPictures = 3;
+    [SerializeField] public PictureInfo[] pictures = new PictureInfo[3];
+    
     
     [Header("Picture Movement")]
     public float MoveDuration = 2.0f;
@@ -55,6 +66,10 @@ public class GameManager : SingletonBehaviour<GameManager>
     void Start()
     {
        isGameOver = true;
+       
+       Cursor.lockState = CursorLockMode.Confined; // 커서 숨기기
+       Cursor.visible = true;
+       
        if (pictureRectTransform != null)
        {
            pictureRectTransform.anchoredPosition = pictureStartTransform.position;
@@ -146,6 +161,12 @@ public class GameManager : SingletonBehaviour<GameManager>
             Debug.LogError("Concentration Slider가 GameManager에 연결되지 않았습니다!");
         }
         
+        // pictures 초기화
+        for (int i = 0; i < numPictures; i++)
+        {
+            pictures[i].isGot = false;
+            pictures[i].pictureObject.SetActive(false);
+        }
     }
     
     public float ConcentrationRatio
@@ -163,11 +184,9 @@ public class GameManager : SingletonBehaviour<GameManager>
     // --- 게임 오버 처리 ---
     private void HandleGameOver()
     {
-        isGameOver = true;
         Debug.Log("게임 오버: 집중력이 0이 되었습니다.");
-        
-        // 여기에 게임 패배 연출 (화면 암전, UI 표시 등) 로직을 추가합니다.
-        // 예: UIManager.Instance.ShowGameOverScreen();
+        DialogueManager.Instance.StartDialogue("GameOver");
+        isGameOver = true;
     }
     
     public void GameReset()
@@ -188,8 +207,32 @@ public class GameManager : SingletonBehaviour<GameManager>
         Cursor.visible = false;
     }
     
+    [YarnCommand("gotoTitle")]
     public void GotoTitle()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene("MainScene");
+    }
+
+    [YarnCommand("getPicture")]
+    public void GetPicture(int pictureIndex)
+    {
+        if (pictureIndex < 0 || pictureIndex >= numPictures) return;
+        pictures[pictureIndex].isGot = true;
+        pictures[pictureIndex].pictureObject.SetActive(true);
+        
+        CheckGameClear();
+    }
+
+    private void CheckGameClear()
+    {
+        for (int i = 0; i < numPictures; i++)
+        {
+            if (!pictures[i].isGot)
+            {
+                return;
+            }
+        }
+        
+        DialogueManager.Instance.StartDialogue("Ending");
     }
 }

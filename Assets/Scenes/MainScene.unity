@@ -1219,7 +1219,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &293516389
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1618,7 +1618,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &415292827
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1861,7 +1861,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &482104180
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2307,7 +2307,7 @@ GameObject:
   m_Component:
   - component: {fileID: 692680620}
   m_Layer: 5
-  m_Name: GameObject
+  m_Name: Got image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3643,7 +3643,7 @@ GameObject:
   - component: {fileID: 1179889302}
   - component: {fileID: 1179889303}
   m_Layer: 0
-  m_Name: '@Game Manager'
+  m_Name: '@GameManager'
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3670,8 +3670,14 @@ MonoBehaviour:
   concentrationSlider: {fileID: 2071298516}
   titleUICanvasGroup: {fileID: 1203062389}
   pausePopup: {fileID: 171360849}
-  pictures: 
   numPictures: 3
+  pictures:
+  - isGot: 0
+    pictureObject: {fileID: 415292826}
+  - isGot: 0
+    pictureObject: {fileID: 482104179}
+  - isGot: 0
+    pictureObject: {fileID: 293516388}
   MoveDuration: 2
   pictureRectTransform: {fileID: 471285648}
   pictureStartTransform:
@@ -3982,7 +3988,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: fingerRunning
+          m_StringArgument: FingerRunning
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!65 &1254932667

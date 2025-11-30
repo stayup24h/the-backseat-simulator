@@ -20,6 +20,7 @@ public class DialogueManager : SingletonBehaviour<DialogueManager>
 
     public void StartDialogue(string dialogueNode)
     {
+        if(GameManager.Instance.isGameOver) return;
         GameManager.Instance.DecreaseOnInteract();
         dialogueRunner.StartDialogue(dialogueNode);
     }

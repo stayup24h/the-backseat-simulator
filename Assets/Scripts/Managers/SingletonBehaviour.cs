@@ -91,7 +91,7 @@ public class SingletonBehaviour<T> : MonoBehaviour where T : MonoBehaviour
             if (_instance == null)
             {
                 _instance = this as T;
-                DontDestroyOnLoad(this.gameObject); // 씬 전환 시 파괴되지 않도록 설정
+                //DontDestroyOnLoad(this.gameObject); // 씬 전환 시 파괴되지 않도록 설정
             }
             // 인스턴스가 이미 존재하는데, 이 오브젝트가 아니라면 (중복)
             else if (_instance != this)
