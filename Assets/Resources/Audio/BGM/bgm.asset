@@ -32,9 +32,12 @@ MonoBehaviour:
   - clip: {fileID: 8300000, guid: eff2f56e37118fa4d8fbfcb9f0182161, type: 3}
     volume: 1
     pitch: 1
-  - clip: {fileID: 8300000, guid: eff2f56e37118fa4d8fbfcb9f0182161, type: 3}
+  - clip: {fileID: 8300000, guid: 207b90f6a809b3a4593d24230c52c386, type: 3}
+    volume: 1
+    pitch: 1
+  - clip: {fileID: 8300000, guid: eda24e8c7f3b1ce40a1c734730ae26a0, type: 3}
     volume: 1
     pitch: 1
   masterVolume: 0.1
   masterPitch: 1
-  playMode: 0
+  playMode: 1

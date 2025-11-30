@@ -35,7 +35,12 @@ public class SoundManager : SingletonBehaviour<SoundManager>
     private Dictionary<string, SoundDataSO> noiseDictionary = new Dictionary<string, SoundDataSO>();
     private Dictionary<string, SoundDataSO> sfxDictionary = new Dictionary<string, SoundDataSO>();
 
-    private bool isCrossFading = false;    
+    private bool isCrossFading = false;
+    private Coroutine bgmCrossfadeCoroutine;
+    private Coroutine noiseCrossfadeCoroutine;
+    // 분리된 플래그: BGM/Noise 각각의 교차 페이드 상태를 추적합니다.
+    private bool isBgmCrossFading = false;
+    private bool isNoiseCrossFading = false;
     
     protected override void Awake()
     {
@@ -110,7 +115,11 @@ public class SoundManager : SingletonBehaviour<SoundManager>
 
     private void UpdateChannel(AudioSource activeSource, SoundDataSO currentSO, SoundType type)
     {
-        if (currentSO == null || activeSource == null || activeSource.clip == null || isCrossFading) return;
+        if (currentSO == null || activeSource == null || activeSource.clip == null) return;
+
+        // 타입별 교차 페이드 여부 확인
+        if (type == SoundType.BGM && isBgmCrossFading) return;
+        if (type == SoundType.Noise && isNoiseCrossFading) return;
 
         float remainingTime = activeSource.clip.length - activeSource.time;
 
@@ -213,6 +222,7 @@ public class SoundManager : SingletonBehaviour<SoundManager>
 
     private void PlayPlaylist(string name, SoundType type)
     {
+        Debug.Log($"[SoundManager] PlayPlaylist called: name={name}, type={type}");
         var dict = GetDictionary(type);
         if (dict == null || !dict.ContainsKey(name))
         {
@@ -224,42 +234,51 @@ public class SoundManager : SingletonBehaviour<SoundManager>
 
         if (type == SoundType.BGM)
         {
-            if (currentBgmSO != nextSO)
-            {
-                currentBgmSO = nextSO;
-                PlayNextTrackInPlaylist(currentBgmSO, type);
-            }
+            // 항상 새로 재생하도록 변경: 동일한 플레이리스트 이름이더라도 재생을 요청하면 첫 곡부터 재생 시작
+            currentBgmSO = nextSO;
+            PlayNextTrackInPlaylist(currentBgmSO, type);
         }
         else if (type == SoundType.Noise)
         {
-            if (currentNoiseSO != nextSO)
-            {
-                currentNoiseSO = nextSO;
-                PlayNextTrackInPlaylist(currentNoiseSO, type);
-            }
+            // Noise도 동일하게 항상 재생 요청 시 재시작
+            currentNoiseSO = nextSO;
+            PlayNextTrackInPlaylist(currentNoiseSO, type);
         }
     }
 
     // 플레이리스트 다음 곡 재생
     private void PlayNextTrackInPlaylist(SoundDataSO currentSoundSO, SoundType type)
     {
-        if (currentSoundSO == null) return;
+        Debug.Log($"[SoundManager] PlayNextTrackInPlaylist called for type={type}");
+        if (currentSoundSO == null) { Debug.LogWarning("currentSoundSO is null"); return; }
 
         SoundDataSO.ClipData nextClipData = currentSoundSO.GetNextClipData();
-        if (nextClipData == null) return;
+        if (nextClipData == null) { Debug.LogWarning("nextClipData is null"); return; }
+
+        Debug.Log($"[SoundManager] Next clip data: " + (nextClipData.clip != null ? nextClipData.clip.name : "<null>"));
 
         if (type == SoundType.BGM)
             currentBgmClipData = nextClipData;
         else if (type == SoundType.Noise)
             currentNoiseClipData = nextClipData;
         
-        StopAllCoroutines();
-        StartCoroutine(CrossFade(nextClipData, type));
+        if (type == SoundType.BGM)
+        {
+            if (bgmCrossfadeCoroutine != null) StopCoroutine(bgmCrossfadeCoroutine);
+            bgmCrossfadeCoroutine = StartCoroutine(CrossFade(nextClipData, type));
+        }
+        else // Noise
+        {
+            if (noiseCrossfadeCoroutine != null) StopCoroutine(noiseCrossfadeCoroutine);
+            noiseCrossfadeCoroutine = StartCoroutine(CrossFade(nextClipData, type));
+        }
     }
 
     IEnumerator CrossFade(SoundDataSO.ClipData clipData, SoundType type)
     {
-        isCrossFading = true; // 전환 중 표시
+        // 타입별 플래그 세팅
+        if (type == SoundType.BGM) isBgmCrossFading = true;
+        else isNoiseCrossFading = true;
 
         // 1. 타입에 맞는 오디오 소스와 정보 가져오기
         AudioSource activeSource, sourceA, sourceB;
@@ -290,18 +309,18 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         nextSource.Play();
 
         float timer = 0f;
-        
-        // 4. 목표 볼륨 계산
+
+        // 4. 목표 볼륨 계산 (안전하게 startVolume 처리)
         float targetVolume = GetTargetVolume(type);
-        float startVolume = activeSource.volume; // 현재 곡의 볼륨
-        
+        float startVolume = (activeSource != null) ? activeSource.volume : 0f; // 현재 곡의 볼륨 (없으면 0)
+
         while (timer < crossFadeDuration)
         {
             timer += Time.deltaTime;
             float ratio = timer / crossFadeDuration;
 
             // 이전 곡 볼륨 줄이기
-            if (activeSource.isPlaying)
+            if (activeSource != null && activeSource.isPlaying)
                 activeSource.volume = Mathf.Lerp(startVolume, 0f, ratio);
 
             // 다음 곡 볼륨 키우기
@@ -311,8 +330,12 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         }
 
         // 5. 마무리
-        activeSource.Stop();
-        activeSource.volume = 0f;
+        if (activeSource != null)
+        {
+            activeSource.Stop();
+            activeSource.volume = 0f;
+            activeSource.clip = null; // 안전하게 클립 제거
+        }
         nextSource.volume = targetVolume;
 
         // 6. 활성 소스 교체
@@ -321,7 +344,17 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         else
             activeNoiseSource = nextSource;
 
-        isCrossFading = false; // 전환 끝
+        // 타입별 플래그 리셋
+        if (type == SoundType.BGM)
+            isBgmCrossFading = false;
+        else
+            isNoiseCrossFading = false;
+
+        // Coroutine 참조 정리
+        if (type == SoundType.BGM)
+            bgmCrossfadeCoroutine = null;
+        else
+            noiseCrossfadeCoroutine = null;
     }
     
     // ===========================
@@ -373,15 +406,43 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         }
     }
 
+    // BGM 채널을 완전히 정지하고 관련 상태/코루틴을 정리합니다.
+    public void StopBGM()
+    {
+        Debug.Log("[SoundManager] StopBGM called");
+        // 코루틴 정리
+        if (bgmCrossfadeCoroutine != null)
+        {
+            StopCoroutine(bgmCrossfadeCoroutine);
+            bgmCrossfadeCoroutine = null;
+        }
+
+        // 모든 BGM 소스 정지
+        if (bgmSourceA != null) { bgmSourceA.Stop(); bgmSourceA.clip = null; bgmSourceA.volume = 0f; bgmSourceA.pitch = 1f; }
+        if (bgmSourceB != null) { bgmSourceB.Stop(); bgmSourceB.clip = null; bgmSourceB.volume = 0f; bgmSourceB.pitch = 1f; }
+
+        // 상태 리셋
+        activeBgmSource = bgmSourceA != null ? bgmSourceA : activeBgmSource;
+        currentBgmSO = null;
+        currentBgmClipData = null;
+        isBgmCrossFading = false;
+    }
+
+    // 토글: 재생 중이면 끄고, 정지 상태면 항상 새 음악을 처음부터 재생합니다.
     public void bgmOnOff(string bgmName)
     {
-        if (activeBgmSource.isPlaying)
+        bool anyPlaying = (bgmSourceA != null && bgmSourceA.isPlaying) || (bgmSourceB != null && bgmSourceB.isPlaying);
+        Debug.Log($"[SoundManager] bgmOnOff called name={bgmName} anyPlaying={anyPlaying}");
+
+        if (anyPlaying)
         {
-            activeBgmSource.Pause();
+            // 켜져 있으면 완전 정지 (다음에 켤 때는 새 음악부터 재생되도록 함)
+            StopBGM();
+            return;
         }
-        else
-        {
-            PlayBGM(bgmName);
-        }
+
+        // 정지 상태이면 항상 새 음악을 처음부터 재생
+        StopBGM(); // 안전하게 상태 리셋
+        PlayBGM(bgmName);
     }
 }

@@ -1084,7 +1084,19 @@ MonoBehaviour:
   highlightLayerName: Outlined Object
   onInteract:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1052215344}
+        m_TargetAssemblyTypeName: DialogueManager, Assembly-CSharp
+        m_MethodName: StartDialogue
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: Light
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!65 &372556859
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2632,6 +2644,18 @@ MonoBehaviour:
           m_StringArgument: bgm
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1052215344}
+        m_TargetAssemblyTypeName: DialogueManager, Assembly-CSharp
+        m_MethodName: StartDialogue
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: thatSong
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!65 &927367737
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3186,7 +3210,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   _isPersistent: 0
   maxConcentration: 100
-  decreasePerSecond: 0.5
+  decreasePerSecond: 0
   decreasePerInteraction: 5
   playerCtrl: {fileID: 271212799}
   isGameOver: 0
@@ -3427,7 +3451,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 8.45}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 330, y: -300}
+  m_AnchoredPosition: {x: 381, y: -206}
   m_SizeDelta: {x: 4324.8965, y: 2434.8662}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1211226253
@@ -3494,7 +3518,19 @@ MonoBehaviour:
   highlightLayerName: 
   onInteract:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1052215344}
+        m_TargetAssemblyTypeName: DialogueManager, Assembly-CSharp
+        m_MethodName: StartDialogue
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: fingerRunning
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!65 &1254932667
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -4029,10 +4065,10 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5278256548cb9564c87b25c4a16fe341, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 372556858}
+      addedObject: {fileID: 372556859}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 5278256548cb9564c87b25c4a16fe341, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 372556859}
+      addedObject: {fileID: 372556858}
   m_SourcePrefab: {fileID: 100100000, guid: 5278256548cb9564c87b25c4a16fe341, type: 3}
 --- !u!1 &1817879488
 GameObject:
