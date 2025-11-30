@@ -249,7 +249,6 @@ public class SoundManager : SingletonBehaviour<SoundManager>
     // 플레이리스트 다음 곡 재생
     private void PlayNextTrackInPlaylist(SoundDataSO currentSoundSO, SoundType type)
     {
-        Debug.Log($"[SoundManager] PlayNextTrackInPlaylist called for type={type}");
         if (currentSoundSO == null) { Debug.LogWarning("currentSoundSO is null"); return; }
 
         SoundDataSO.ClipData nextClipData = currentSoundSO.GetNextClipData();

@@ -27,6 +27,7 @@ public class GameManager : SingletonBehaviour<GameManager>
     [Header("UI")]
     public Slider concentrationSlider; // 인스펙터에서 연결할 슬라이더
     public CanvasGroup titleUICanvasGroup;
+    [SerializeField] public GameObject pausePopup;
     
     [SerializeField] public bool[] pictures;
     [SerializeField] public int numPictures = 3;
@@ -167,5 +168,28 @@ public class GameManager : SingletonBehaviour<GameManager>
         
         // 여기에 게임 패배 연출 (화면 암전, UI 표시 등) 로직을 추가합니다.
         // 예: UIManager.Instance.ShowGameOverScreen();
+    }
+    
+    public void GameReset()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+    }
+    
+    public void GameExit()
+    {
+        Application.Quit();
+    }
+
+    public void Nope()
+    {
+        pausePopup.SetActive(false);
+        isGameOver = false;
+        Cursor.lockState = CursorLockMode.Locked; // 커서 숨기기
+        Cursor.visible = false;
+    }
+    
+    public void GotoTitle()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene("MainScene");
     }
 }

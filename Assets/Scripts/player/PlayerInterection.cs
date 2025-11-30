@@ -23,7 +23,7 @@ public class PlayerInteraction : MonoBehaviour
     [SerializeField] private float inputCooldown = 0.5f;
     
     [SerializeField] public DialogueRunner dialogueRunner;
-    
+    [SerializeField] public GameObject pausePopup;
     // 현재 바라보고 있는 Interactable
     private Interactable currentInteractable;
 
@@ -37,6 +37,7 @@ public class PlayerInteraction : MonoBehaviour
 
         // 시작할 때 UI를 숨깁니다.
         HideUI();
+        pausePopup.SetActive(false);
     }
 
     // PlayerInteraction.cs의 Update 함수는 그대로 둡니다.
@@ -123,5 +124,17 @@ public class PlayerInteraction : MonoBehaviour
             dialogueRunner.RequestNextLine();
             lockStartTime = Time.time;
         }
+    }
+    
+    public void OnPause(InputValue value)
+    {
+        if(GameManager.Instance.isGameOver) return;
+        
+        Debug.Log("Pause");
+        
+        Cursor.lockState = CursorLockMode.None; // 커서 보이기
+        Cursor.visible = true;
+        pausePopup.SetActive(true);
+        GameManager.Instance.isGameOver = true;
     }
 }
