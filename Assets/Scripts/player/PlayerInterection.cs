@@ -26,7 +26,7 @@ public class PlayerInteraction : MonoBehaviour
     [SerializeField] public GameObject pausePopup;
     // 현재 바라보고 있는 Interactable
     private Interactable currentInteractable;
-
+    
     void Start()
     {
         // 카메라가 연결되지 않았다면, PlayerCtrl처럼 자식에서 찾아옵니다.
@@ -34,7 +34,7 @@ public class PlayerInteraction : MonoBehaviour
         {
             cameraTransform = GetComponentInChildren<Camera>().transform;
         }
-
+        
         // 시작할 때 UI를 숨깁니다.
         HideUI();
         pausePopup.SetActive(false);
@@ -51,11 +51,12 @@ public class PlayerInteraction : MonoBehaviour
     /// </summary>
     private void CheckForInteractable()
     {
-        if (GameManager.Instance.currentConcentration < 5)
+        if (GameManager.Instance.currentConcentration < 5 || GameManager.Instance.isPaused || GameManager.Instance.isDialogueMode || GameManager.Instance.isGameOver)
         {
             HideUI();
             return;
         }
+        
         Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
         Interactable newInteractable = null;
 
@@ -112,15 +113,10 @@ public class PlayerInteraction : MonoBehaviour
     public void OnInteract(InputValue value)
     {
         // 버튼을 눌렀고, 현재 바라보고 있는 상호작용 오브젝트가 있다면
-        if (value.isPressed && currentInteractable != null && GameManager.Instance.currentConcentration > 5)
+        
+        if (value.isPressed && dialogueRunner != null && dialogueRunner.IsDialogueRunning )
         {
-            currentInteractable.Interact();
-            lockStartTime = Time.time;
-            Cursor.lockState = CursorLockMode.Locked; // 커서 숨기기
-            Cursor.visible = false;
-        }
-        else if (value.isPressed && dialogueRunner != null && dialogueRunner.IsDialogueRunning )
-        {
+            if(GameManager.Instance.isPaused) return;
             if (Time.time - lockStartTime < inputCooldown)
             {
                 return;
@@ -129,12 +125,20 @@ public class PlayerInteraction : MonoBehaviour
             dialogueRunner.RequestNextLine();
             lockStartTime = Time.time;
         }
+        else if (value.isPressed && currentInteractable != null && GameManager.Instance.currentConcentration > 5) 
+        {
+            if(GameManager.Instance.isGameOver || GameManager.Instance.isDialogueMode) return;
+            currentInteractable.Interact();
+            lockStartTime = Time.time;
+            Cursor.lockState = CursorLockMode.Locked; // 커서 숨기기
+            Cursor.visible = false;
+        }
     }
     
     public void OnPause(InputValue value)
     {
         if(GameManager.Instance.isGameOver) return;
-        
+        GameManager.Instance.isPaused = true;
         Debug.Log("Pause");
         
         Cursor.lockState = CursorLockMode.None; // 커서 보이기

@@ -1,8 +1,8 @@
 using UnityEngine;
-using TMPro;
 using UnityEngine.UI;
 using DG.Tweening;
 using Yarn.Unity;
+using System.Collections;
 
 [System.Serializable]
 public struct TransformData
@@ -26,50 +26,63 @@ public class GameManager : SingletonBehaviour<GameManager>
     public float maxConcentration = 100f; // 최대 집중력
     public float decreasePerSecond = 0.5f; // 초당 감소하는 집중력
     public float decreasePerInteraction = 5f; // 상호작용 시 감소하는 집중력
-    
+
     public PlayerCtrl playerCtrl;
-    
+
     public float currentConcentration; // 현재 집중력
     public bool isGameOver = true; // 게임 오버 상태 플래그
-    
+    public bool isDialogueMode;
+    public bool isPaused;
+
     // --- UI 연결 ---
     [Header("UI")]
     public Slider concentrationSlider; // 인스펙터에서 연결할 슬라이더
     public CanvasGroup titleUICanvasGroup;
     [SerializeField] public GameObject pausePopup;
     [SerializeField] public DialogueRunner dialogueRunner;
-    
+
     [SerializeField] public int numPictures = 3;
     [SerializeField] public PictureInfo[] pictures = new PictureInfo[3];
-    
-    
+
+
     [Header("Picture Movement")]
-    public float MoveDuration = 2.0f;
+    public float moveDuration = 2.0f;
     public RectTransform pictureRectTransform; // 인스펙터에서 이동시킬 Picture 오브젝트의 Transform을 할당
     public TransformData pictureStartTransform; // 시작 위치
     public TransformData pictureTargetTransform; // 이동할 목표 위치
-    
+
     public RectTransform rightHandTransform;
     public TransformData rightHandStartTransform;
     public TransformData rightHandTargetTransform;
-    
+
     public RectTransform leftHandTransform;
     public TransformData leftHandStartTransform;
     public TransformData leftHandTargetTransform;
-    
+
     [Header("Sound Settings")]
     public Vector3 noisePosition; // Noise 사운드를 재생할 위치
     [Range(0f, 1f)] public float noiseSpatialBlend = 0.4f; // Noise의 Spatial Blend 값
 
     [Header("directing")]
     public DaynightController daynightController;
+
+    private void OnEnable()
+    {
+        dialogueRunner.onDialogueStart.AddListener(() => isDialogueMode = true);
+    }
+
+    private void OnDisable()
+    {
+        dialogueRunner.onDialogueStart.RemoveListener(() => isDialogueMode = true);
+    }
+
     void Start()
     {
        isGameOver = true;
-       
+
        Cursor.lockState = CursorLockMode.Confined; // 커서 숨기기
        Cursor.visible = true;
-       
+
        if (pictureRectTransform != null)
        {
            pictureRectTransform.anchoredPosition = pictureStartTransform.position;
@@ -77,7 +90,7 @@ public class GameManager : SingletonBehaviour<GameManager>
            pictureRectTransform.localScale = pictureStartTransform.scale;
        }
     }
-    
+
     // Update is called once per frame
     void Update()
     {
@@ -96,26 +109,26 @@ public class GameManager : SingletonBehaviour<GameManager>
             HandleGameOver();
         }
     }
-    
+
     public void StartBtn()
     {
         dialogueRunner.StartDialogue("RecallWithPhoto");
     }
-    
+
     [YarnCommand("gameStart")]
     public void GameStart()
     {
-      
+
         titleUICanvasGroup.DOFade(0f, 1.0f).OnComplete(() =>
         {
             titleUICanvasGroup.gameObject.SetActive(false);
         });
-        
-        
-        
-        pictureRectTransform.DOAnchorPos(pictureTargetTransform.position, MoveDuration).SetEase(Ease.OutCirc);
-        pictureRectTransform.DORotate(pictureTargetTransform.rotation, MoveDuration).SetEase(Ease.OutCirc);
-        pictureRectTransform.DOScale(pictureTargetTransform.scale, MoveDuration).SetEase(Ease.OutCirc).OnComplete(() =>
+
+
+
+        pictureRectTransform.DOAnchorPos(pictureTargetTransform.position, moveDuration).SetEase(Ease.OutCirc);
+        pictureRectTransform.DORotate(pictureTargetTransform.rotation, moveDuration).SetEase(Ease.OutCirc);
+        pictureRectTransform.DOScale(pictureTargetTransform.scale, moveDuration).SetEase(Ease.OutCirc).OnComplete(() =>
         {
             isGameOver = false;
             Initialize();
@@ -127,7 +140,7 @@ public class GameManager : SingletonBehaviour<GameManager>
             rightHandTransform.DOScale(rightHandTargetTransform.scale, 1);
         });
     }
-    
+
     // --- UI 업데이트 ---
     private void UpdateConcentrationUI()
     {
@@ -155,7 +168,9 @@ public class GameManager : SingletonBehaviour<GameManager>
     {
         // 게임 시작 시 집중력 초기화
         currentConcentration = maxConcentration;
-        
+        isDialogueMode = false;
+        isPaused = false;
+
         // 슬라이더 UI 초기 설정
         if (concentrationSlider != null)
         {
@@ -166,7 +181,7 @@ public class GameManager : SingletonBehaviour<GameManager>
         {
             Debug.LogError("Concentration Slider가 GameManager에 연결되지 않았습니다!");
         }
-        
+
         // pictures 초기화
         for (int i = 0; i < numPictures; i++)
         {
@@ -174,19 +189,19 @@ public class GameManager : SingletonBehaviour<GameManager>
             pictures[i].pictureObject.SetActive(false);
         }
     }
-    
+
     public float ConcentrationRatio
     {
-        get 
+        get
         {
             // 0으로 나누기 방지
             if (maxConcentration == 0) return 0f;
-        
+
             // 현재값 / 최대값 (예: 50 / 100 = 0.5)
             return currentConcentration / maxConcentration;
         }
     }
-    
+
     // --- 게임 오버 처리 ---
     private void HandleGameOver()
     {
@@ -194,12 +209,12 @@ public class GameManager : SingletonBehaviour<GameManager>
         DialogueManager.Instance.StartDialogue("GameOver");
         isGameOver = true;
     }
-    
+
     public void GameReset()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
     }
-    
+
     public void GameExit()
     {
         Application.Quit();
@@ -209,24 +224,26 @@ public class GameManager : SingletonBehaviour<GameManager>
     {
         pausePopup.SetActive(false);
         isGameOver = false;
-        Cursor.lockState = CursorLockMode.Locked; // 커서 숨기기
-        Cursor.visible = false;
+        isPaused = false;
+        playerCtrl.UnlockMouseLook();
     }
-    
+
     [YarnCommand("gotoTitle")]
     public void GotoTitle()
     {
         pausePopup.SetActive(false);
-        
-        pictureRectTransform.DOAnchorPos(pictureStartTransform.position, MoveDuration).SetEase(Ease.OutCirc);
-        pictureRectTransform.DORotate(pictureStartTransform.rotation, MoveDuration).SetEase(Ease.OutCirc);
-        pictureRectTransform.DOScale(pictureStartTransform.scale, MoveDuration).SetEase(Ease.OutCirc).OnComplete(() =>
+
+        pictureRectTransform.DOAnchorPos(pictureStartTransform.position, moveDuration).SetEase(Ease.OutCirc);
+        pictureRectTransform.DORotate(pictureStartTransform.rotation, moveDuration).SetEase(Ease.OutCirc);
+        pictureRectTransform.DOScale(pictureStartTransform.scale, moveDuration).SetEase(Ease.OutCirc).OnComplete(() =>
         {
             rightHandTransform.DOAnchorPos(rightHandStartTransform.position, 1).SetEase(Ease.OutCirc);
             rightHandTransform.DORotate(rightHandStartTransform.rotation, 1);
             rightHandTransform.DOScale(rightHandStartTransform.scale, 1);
             titleUICanvasGroup.gameObject.SetActive(true);
             titleUICanvasGroup.DOFade(1f, 1.0f);
+            isGameOver = true;
+            GameReset();
         });
     }
 
@@ -236,8 +253,10 @@ public class GameManager : SingletonBehaviour<GameManager>
         if (pictureIndex < 0 || pictureIndex >= numPictures) return;
         pictures[pictureIndex].isGot = true;
         pictures[pictureIndex].pictureObject.SetActive(true);
-        
-        CheckGameClear();
+        pictures[pictureIndex].pictureObject.GetComponent<Image>().DOFade(1f, 1.0f).OnComplete(()=>
+        {
+            CheckGameClear();
+        });
     }
 
     private void CheckGameClear()
@@ -249,7 +268,23 @@ public class GameManager : SingletonBehaviour<GameManager>
                 return;
             }
         }
-        
+
+        StartCoroutine(ClearGameCoroutine());
+    }
+
+    private IEnumerator ClearGameCoroutine()
+    {
+        yield return new WaitUntil(() => !isDialogueMode);
+
+        Debug.Log("모든 사진 획득! 게임 클리어!");
         dialogueRunner.StartDialogue("Ending");
+    }
+
+
+
+    [YarnCommand("dialogueEnd")]
+    public void DialogueEnd()
+    {
+        isDialogueMode = false;
     }
 }

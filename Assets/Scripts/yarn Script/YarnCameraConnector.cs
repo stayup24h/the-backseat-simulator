@@ -45,7 +45,8 @@ public class YarnCameraConnector : DialoguePresenterBase
         // (이전에 선택지를 고르느라 커서가 켜져 있었다면 여기서 다시 꺼줍니다)
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-
+        GameManager.Instance.isDialogueMode = true;
+        
         if (cameraDirector != null)
         {
             cameraDirector.FocusOnCharacter(line.CharacterName);

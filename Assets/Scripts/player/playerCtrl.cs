@@ -57,6 +57,8 @@ public class PlayerCtrl : MonoBehaviour
     // [추가] 외부에서 호출할 잠금 해제 함수 (게임 모드)
     public void UnlockMouseLook()
     {
+        //if(GameManager.Instance.isGameOver) return;
+        
         isLocked = false;
         Cursor.lockState = CursorLockMode.Locked; // 커서 숨기기
         Cursor.visible = false;
