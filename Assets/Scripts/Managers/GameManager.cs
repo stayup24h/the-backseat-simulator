@@ -130,7 +130,6 @@ public class GameManager : SingletonBehaviour<GameManager>
         pictureRectTransform.DORotate(pictureTargetTransform.rotation, moveDuration).SetEase(Ease.OutCirc);
         pictureRectTransform.DOScale(pictureTargetTransform.scale, moveDuration).SetEase(Ease.OutCirc).OnComplete(() =>
         {
-            isGameOver = false;
             Initialize();
             daynightController.Initialize();
             playerCtrl.Initialize();
@@ -187,7 +186,9 @@ public class GameManager : SingletonBehaviour<GameManager>
         {
             pictures[i].isGot = false;
             pictures[i].pictureObject.SetActive(false);
+            pictures[i].pictureObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
         }
+        isGameOver = false;
     }
 
     public float ConcentrationRatio
@@ -232,7 +233,8 @@ public class GameManager : SingletonBehaviour<GameManager>
     public void GotoTitle()
     {
         pausePopup.SetActive(false);
-
+        isGameOver = true;
+        isPaused = false;
         pictureRectTransform.DOAnchorPos(pictureStartTransform.position, moveDuration).SetEase(Ease.OutCirc);
         pictureRectTransform.DORotate(pictureStartTransform.rotation, moveDuration).SetEase(Ease.OutCirc);
         pictureRectTransform.DOScale(pictureStartTransform.scale, moveDuration).SetEase(Ease.OutCirc).OnComplete(() =>
@@ -241,9 +243,12 @@ public class GameManager : SingletonBehaviour<GameManager>
             rightHandTransform.DORotate(rightHandStartTransform.rotation, 1);
             rightHandTransform.DOScale(rightHandStartTransform.scale, 1);
             titleUICanvasGroup.gameObject.SetActive(true);
-            titleUICanvasGroup.DOFade(1f, 1.0f);
-            isGameOver = true;
-            GameReset();
+            titleUICanvasGroup.DOFade(1f, 1.0f).OnComplete(()=>
+            {
+                Cursor.lockState = CursorLockMode.Confined;
+                Cursor.visible = true;
+                GameReset();
+            });
         });
     }
 

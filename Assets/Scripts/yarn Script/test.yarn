@@ -22,6 +22,7 @@ title: Donut
 -> 아빠: 응, 맛있어 보여!
 -> 동생: 맞아, 다음에는 내가 직접 만들어볼래!
 
+<<dialogueEnd @GameManager>>
 ===
 
 title: RecallWithPhoto
