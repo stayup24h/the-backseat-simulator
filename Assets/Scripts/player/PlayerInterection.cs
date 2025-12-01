@@ -51,6 +51,11 @@ public class PlayerInteraction : MonoBehaviour
     /// </summary>
     private void CheckForInteractable()
     {
+        if (GameManager.Instance.currentConcentration < 5)
+        {
+            HideUI();
+            return;
+        }
         Ray ray = new Ray(cameraTransform.position, cameraTransform.forward);
         Interactable newInteractable = null;
 
@@ -107,7 +112,7 @@ public class PlayerInteraction : MonoBehaviour
     public void OnInteract(InputValue value)
     {
         // 버튼을 눌렀고, 현재 바라보고 있는 상호작용 오브젝트가 있다면
-        if (value.isPressed && currentInteractable != null)
+        if (value.isPressed && currentInteractable != null && GameManager.Instance.currentConcentration > 5)
         {
             currentInteractable.Interact();
             lockStartTime = Time.time;

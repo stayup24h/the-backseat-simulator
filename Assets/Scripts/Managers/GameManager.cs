@@ -29,7 +29,7 @@ public class GameManager : SingletonBehaviour<GameManager>
     
     public PlayerCtrl playerCtrl;
     
-    private float currentConcentration; // 현재 집중력
+    public float currentConcentration; // 현재 집중력
     public bool isGameOver = true; // 게임 오버 상태 플래그
     
     // --- UI 연결 ---
@@ -37,7 +37,7 @@ public class GameManager : SingletonBehaviour<GameManager>
     public Slider concentrationSlider; // 인스펙터에서 연결할 슬라이더
     public CanvasGroup titleUICanvasGroup;
     [SerializeField] public GameObject pausePopup;
-    
+    [SerializeField] public DialogueRunner dialogueRunner;
     
     [SerializeField] public int numPictures = 3;
     [SerializeField] public PictureInfo[] pictures = new PictureInfo[3];
@@ -97,6 +97,12 @@ public class GameManager : SingletonBehaviour<GameManager>
         }
     }
     
+    public void StartBtn()
+    {
+        dialogueRunner.StartDialogue("RecallWithPhoto");
+    }
+    
+    [YarnCommand("gameStart")]
     public void GameStart()
     {
       
@@ -210,7 +216,18 @@ public class GameManager : SingletonBehaviour<GameManager>
     [YarnCommand("gotoTitle")]
     public void GotoTitle()
     {
-        UnityEngine.SceneManagement.SceneManager.LoadScene("MainScene");
+        pausePopup.SetActive(false);
+        
+        pictureRectTransform.DOAnchorPos(pictureStartTransform.position, MoveDuration).SetEase(Ease.OutCirc);
+        pictureRectTransform.DORotate(pictureStartTransform.rotation, MoveDuration).SetEase(Ease.OutCirc);
+        pictureRectTransform.DOScale(pictureStartTransform.scale, MoveDuration).SetEase(Ease.OutCirc).OnComplete(() =>
+        {
+            rightHandTransform.DOAnchorPos(rightHandStartTransform.position, 1).SetEase(Ease.OutCirc);
+            rightHandTransform.DORotate(rightHandStartTransform.rotation, 1);
+            rightHandTransform.DOScale(rightHandStartTransform.scale, 1);
+            titleUICanvasGroup.gameObject.SetActive(true);
+            titleUICanvasGroup.DOFade(1f, 1.0f);
+        });
     }
 
     [YarnCommand("getPicture")]
@@ -233,6 +250,6 @@ public class GameManager : SingletonBehaviour<GameManager>
             }
         }
         
-        DialogueManager.Instance.StartDialogue("Ending");
+        dialogueRunner.StartDialogue("Ending");
     }
 }

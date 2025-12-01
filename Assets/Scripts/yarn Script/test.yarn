@@ -27,6 +27,7 @@ title: Donut
 title: RecallWithPhoto
 ---
 : 대충 사진을 보고 회상하는 내용
+<<gameStart @GameManager>>
 ===
 
 title : thatSong
@@ -50,6 +51,7 @@ title: FingerRunning
 title: GameOver
 ---
 : 졸려서 자버렸다.
+: 게임 오버
 <<wait 1>>
 <<gotoTitle @GameManager>>
 ===

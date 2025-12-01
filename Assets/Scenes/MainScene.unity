@@ -949,7 +949,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1179889300}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: GameStart
+        m_MethodName: StartBtn
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3663,13 +3663,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   _isPersistent: 0
   maxConcentration: 100
-  decreasePerSecond: 0
+  decreasePerSecond: 0.5
   decreasePerInteraction: 5
   playerCtrl: {fileID: 271212799}
+  currentConcentration: 0
   isGameOver: 0
   concentrationSlider: {fileID: 2071298516}
   titleUICanvasGroup: {fileID: 1203062389}
   pausePopup: {fileID: 171360849}
+  dialogueRunner: {fileID: 847776961}
   numPictures: 3
   pictures:
   - isGot: 0
