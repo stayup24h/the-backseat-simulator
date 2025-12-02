@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.Audio;
+using Yarn.Unity;
 
 public enum SoundType { BGM, Noise, SFX }
 
@@ -133,6 +134,8 @@ public class SoundManager : SingletonBehaviour<SoundManager>
     // ===========================
     // 🔊 1. SFX 재생 (2D - UI 등)
     // ===========================
+    
+    [YarnCommand("play_sfx")]
     public void PlaySFX(string name)
     {
         PlaySFXCommon(name, null); // 타겟이 없으면 2D로 재생
@@ -443,5 +446,93 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         // 정지 상태이면 항상 새 음악을 처음부터 재생
         StopBGM(); // 안전하게 상태 리셋
         PlayBGM(bgmName);
+    }
+    
+    public void BGMFadeOut()
+    {
+        if (bgmCrossfadeCoroutine != null)
+        {
+            StopCoroutine(bgmCrossfadeCoroutine);
+            bgmCrossfadeCoroutine = null;
+        }
+        bgmCrossfadeCoroutine = StartCoroutine(FadeOutBGM());
+    }
+    
+    IEnumerator FadeOutBGM()
+    {
+        isBgmCrossFading = true;
+
+        AudioSource activeSource = activeBgmSource;
+        if (activeSource == null || !activeSource.isPlaying)
+        {
+            isBgmCrossFading = false;
+            yield break;
+        }
+
+        float startVolume = activeSource.volume;
+        float timer = 0f;
+
+        while (timer < crossFadeDuration)
+        {
+            timer += Time.deltaTime;
+            float ratio = timer / crossFadeDuration;
+
+            // 볼륨 줄이기
+            activeSource.volume = Mathf.Lerp(startVolume, 0f, ratio);
+
+            yield return null;
+        }
+
+        // 마무리
+        activeSource.Stop();
+        activeSource.volume = 0f;
+        activeSource.clip = null;
+
+        isBgmCrossFading = false;
+        bgmCrossfadeCoroutine = null;
+    }
+    
+    public void NoiseFadeOut()
+    {
+        if (noiseCrossfadeCoroutine != null)
+        {
+            StopCoroutine(noiseCrossfadeCoroutine);
+            noiseCrossfadeCoroutine = null;
+        }
+        noiseCrossfadeCoroutine = StartCoroutine(FadeOutNoise());
+    }
+    
+    IEnumerator FadeOutNoise()
+    {
+        isNoiseCrossFading = true;
+
+        AudioSource activeSource = activeNoiseSource;
+        if (activeSource == null || !activeSource.isPlaying)
+        {
+            isNoiseCrossFading = false;
+            yield break;
+        }
+
+        float startVolume = activeSource.volume;
+        float timer = 0f;
+
+        while (timer < crossFadeDuration)
+        {
+            timer += Time.deltaTime;
+            float ratio = timer / crossFadeDuration;
+
+            // 볼륨 줄이기
+            activeSource.volume = Mathf.Lerp(startVolume, 0f, ratio);
+
+            yield return null;
+        }
+
+        // 마무리
+        activeSource.Stop();
+        activeSource.volume = 0f;
+        activeSource.clip = null;
+
+        isNoiseCrossFading = false;
+        noiseCrossfadeCoroutine = null;
     }
 }

@@ -185,8 +185,7 @@ public class GameManager : SingletonBehaviour<GameManager>
         for (int i = 0; i < numPictures; i++)
         {
             pictures[i].isGot = false;
-            pictures[i].pictureObject.SetActive(false);
-            pictures[i].pictureObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
+            pictures[i].pictureObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.1f);
         }
         isGameOver = false;
     }
@@ -235,10 +234,18 @@ public class GameManager : SingletonBehaviour<GameManager>
         pausePopup.SetActive(false);
         isGameOver = true;
         isPaused = false;
+        SoundManager.Instance.BGMFadeOut();
+        SoundManager.Instance.NoiseFadeOut();
         pictureRectTransform.DOAnchorPos(pictureStartTransform.position, moveDuration).SetEase(Ease.OutCirc);
         pictureRectTransform.DORotate(pictureStartTransform.rotation, moveDuration).SetEase(Ease.OutCirc);
         pictureRectTransform.DOScale(pictureStartTransform.scale, moveDuration).SetEase(Ease.OutCirc).OnComplete(() =>
         {
+            for(int i = 0; i < numPictures; i++)
+            {
+                pictures[i].isGot = false;
+                pictures[i].pictureObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
+            }
+            
             rightHandTransform.DOAnchorPos(rightHandStartTransform.position, 1).SetEase(Ease.OutCirc);
             rightHandTransform.DORotate(rightHandStartTransform.rotation, 1);
             rightHandTransform.DOScale(rightHandStartTransform.scale, 1);
@@ -247,7 +254,7 @@ public class GameManager : SingletonBehaviour<GameManager>
             {
                 Cursor.lockState = CursorLockMode.Confined;
                 Cursor.visible = true;
-                GameReset();
+                //GameReset();
             });
         });
     }
@@ -257,7 +264,7 @@ public class GameManager : SingletonBehaviour<GameManager>
     {
         if (pictureIndex < 0 || pictureIndex >= numPictures) return;
         pictures[pictureIndex].isGot = true;
-        pictures[pictureIndex].pictureObject.SetActive(true);
+        SoundManager.Instance.PlaySFX("GetPhoto");
         pictures[pictureIndex].pictureObject.GetComponent<Image>().DOFade(1f, 1.0f).OnComplete(()=>
         {
             CheckGameClear();
