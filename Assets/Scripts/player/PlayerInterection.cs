@@ -112,6 +112,13 @@ public class PlayerInteraction : MonoBehaviour
     /// </summary>
     public void OnInteract(InputValue value)
     {
+        // 아이템 획득 팝업이 활성화되어 있다면 팝업을 닫습니다.
+        if (value.isPressed && GameManager.Instance.isItemPopupActive)
+        {
+            GameManager.Instance.CloseItemPopup();
+            return; // 팝업을 닫았으므로 다른 상호작용은 처리하지 않습니다.
+        }
+
         // 버튼을 눌렀고, 현재 바라보고 있는 상호작용 오브젝트가 있다면
         
         if (value.isPressed && dialogueRunner != null && dialogueRunner.IsDialogueRunning )

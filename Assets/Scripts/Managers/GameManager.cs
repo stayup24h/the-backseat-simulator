@@ -17,6 +17,7 @@ public class PictureInfo
 {
     public bool isGot;
     public GameObject pictureObject;
+    public string pictureDescription;
 }
 
 
@@ -39,6 +40,8 @@ public class GameManager : SingletonBehaviour<GameManager>
     public Slider concentrationSlider; // 인스펙터에서 연결할 슬라이더
     public CanvasGroup titleUICanvasGroup;
     [SerializeField] public GameObject pausePopup;
+    [SerializeField] public GameObject itemGetPopup; // 아이템 획득 팝업 UI
+    [SerializeField] public TMPro.TMP_Text itemDescriptionText; // 아이템 획득 팝업 설명 텍스트
     [SerializeField] public DialogueRunner dialogueRunner;
 
     [SerializeField] public int numPictures = 3;
@@ -65,6 +68,8 @@ public class GameManager : SingletonBehaviour<GameManager>
 
     [Header("directing")]
     public DaynightController daynightController;
+
+    public bool isItemPopupActive = false; // 아이템 획득 팝업 활성화 상태
 
     private void OnEnable()
     {
@@ -269,6 +274,12 @@ public class GameManager : SingletonBehaviour<GameManager>
         {
             CheckGameClear();
         });
+        itemGetPopup.SetActive(true); // 아이템 획득 팝업 활성화
+        if (itemDescriptionText != null) // itemDescriptionText가 할당되어 있다면
+        {
+            itemDescriptionText.text = pictures[pictureIndex].pictureDescription; // 팝업 설명 텍스트 설정
+        }
+        isItemPopupActive = true; // 팝업 활성화 상태로 설정
     }
 
     private void CheckGameClear()
@@ -298,5 +309,11 @@ public class GameManager : SingletonBehaviour<GameManager>
     public void DialogueEnd()
     {
         isDialogueMode = false;
+    }
+
+    public void CloseItemPopup()
+    {
+        itemGetPopup.SetActive(false); // 아이템 획득 팝업 비활성화
+        isItemPopupActive = false; // 팝업 비활성화 상태로 설정
     }
 }
