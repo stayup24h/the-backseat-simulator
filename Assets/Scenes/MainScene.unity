@@ -4161,7 +4161,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   _isPersistent: 0
   maxConcentration: 100
-  decreasePerSecond: 0.5
+  decreasePerSecond: 0
   decreasePerInteraction: 5
   playerCtrl: {fileID: 271212799}
   currentConcentration: 0
@@ -5638,7 +5638,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC124\uBA85\uC124\uBA85\uC124\uBA85"
+  m_text: "\uC124\uBA85\uC124\uBA85\uC124\uBA85\uC124\uBA85\uC124\uBA85\uC124\uBA85\uC124\uBA85\uC124\uBA85\uC124\uBA85"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8a0e5f741e126454b897fc1477a41fe8, type: 2}
   m_sharedMaterial: {fileID: 5901744807541000163, guid: 8a0e5f741e126454b897fc1477a41fe8, type: 2}
@@ -5869,8 +5869,8 @@ MonoBehaviour:
   bgmMixerGroup: {fileID: 24300002, guid: 208b91e4f12bdbe45a550e5f42548f3d, type: 2}
   bgmSourceTarget: {fileID: 927367735}
   masterVolume: 0.7
-  bgmVolume: 0.5
-  noiseVolume: 0.8
+  bgmVolume: 0.7
+  noiseVolume: 0.7
   sfxVolume: 0.7
   crossFadeDuration: 3
 --- !u!4 &2051119736

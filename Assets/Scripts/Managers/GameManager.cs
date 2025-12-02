@@ -267,7 +267,7 @@ public class GameManager : SingletonBehaviour<GameManager>
     [YarnCommand("getPicture")]
     public void GetPicture(int pictureIndex)
     {
-        if (pictureIndex < 0 || pictureIndex >= numPictures) return;
+        if (pictureIndex < 0 || pictureIndex >= numPictures || pictures[pictureIndex].isGot) return;
         pictures[pictureIndex].isGot = true;
         SoundManager.Instance.PlaySFX("GetPhoto");
         pictures[pictureIndex].pictureObject.GetComponent<Image>().DOFade(1f, 1.0f).OnComplete(()=>
@@ -297,7 +297,7 @@ public class GameManager : SingletonBehaviour<GameManager>
 
     private IEnumerator ClearGameCoroutine()
     {
-        yield return new WaitUntil(() => !isDialogueMode);
+        yield return new WaitUntil(() => !isDialogueMode && !isItemPopupActive);
 
         Debug.Log("모든 사진 획득! 게임 클리어!");
         dialogueRunner.StartDialogue("Ending");
