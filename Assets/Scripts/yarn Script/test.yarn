@@ -28,8 +28,23 @@ title: Donut
 title: RecallWithPhoto
 ---
 : 대충 사진을 보고 회상하는 내용
+: 뭔가 과거가 떠오르지 않아서 답답함
 <<gameStart @GameManager>>
 <<dialogueEnd @GameManager>>
+===
+
+title : tireddrive
+---
+: 운전 중에 점점 졸려오는 내용
+아빠: 오늘 재밌게 놀았지?
+엄마: 집가려면 2시간 더 가야해
+엄마: 졸리면 자렴
+-> : 네
+    아빠 : 그럼 출발해 볼까?
+    <<dialogueEnd @GameManager>>
+
+-> : '여기서 자면 안돼...'
+    <<dialogueEnd @GameManager>>
 ===
 
 title : thatSong
