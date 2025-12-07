@@ -34,6 +34,7 @@ public class GameManager : SingletonBehaviour<GameManager>
     public bool isGameOver = true; // 게임 오버 상태 플래그
     public bool isDialogueMode;
     public bool isPaused;
+    public bool isRunningAction;
 
     // --- UI 연결 ---
     [Header("UI")]
@@ -142,6 +143,7 @@ public class GameManager : SingletonBehaviour<GameManager>
             rightHandTransform.DOAnchorPos(rightHandTargetTransform.position, 1).SetEase(Ease.OutCirc);
             rightHandTransform.DORotate(rightHandTargetTransform.rotation, 1);
             rightHandTransform.DOScale(rightHandTargetTransform.scale, 1);
+            dialogueRunner.StartDialogue("tireddrive");
         });
     }
 
@@ -315,5 +317,29 @@ public class GameManager : SingletonBehaviour<GameManager>
     {
         itemGetPopup.SetActive(false); // 아이템 획득 팝업 비활성화
         isItemPopupActive = false; // 팝업 비활성화 상태로 설정
+    }
+    
+    /// <summary>
+    /// 특정 액션이 시작될 때 호출하여 isRunningAction을 true로 설정합니다.
+    /// </summary>
+    [YarnCommand("RunningActionStart")]
+    public void StartRunningAction()
+    {
+        isRunningAction = true;
+    }
+
+    /// <summary>
+    /// 특정 액션이 종료될 때 호출하여 isRunningAction을 false로 설정합니다.
+    /// </summary>
+    public void EndRunningAction()
+    {
+        isRunningAction = false;
+    }
+
+    [YarnCommand("getTired")]
+    public void GetTired(int value)
+    {
+        currentConcentration += value;
+        currentConcentration = Mathf.Min(maxConcentration, currentConcentration);
     }
 }
