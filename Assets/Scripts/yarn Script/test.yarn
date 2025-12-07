@@ -28,28 +28,39 @@ title: Donut
 title: RecallWithPhoto
 ---
 : 대충 사진을 보고 회상하는 내용
-: 뭔가 과거가 떠오르지 않아서 답답함
+: 기억 조각을 맞춰본다
+: 떠오르는 기억이 없다
+: 답답하다
+: 사진을 자세히 본다
+: 사진 속 장소를 떠올린다
+: 기억 조각을 찾아보자
+: 피로도가 다 달면 게임오버 된다
 <<gameStart @GameManager>>
 <<dialogueEnd @GameManager>>
 ===
 
 title : tireddrive
 ---
-: 운전 중에 점점 졸려오는 내용
+: 재밌게 놀고 집에 돌아가는 길에 점점 졸려오는 내용
 아빠: 오늘 재밌게 놀았지?
 엄마: 집가려면 2시간 더 가야해
 엄마: 졸리면 자렴
 -> : 네
     아빠 : 그럼 출발해 볼까?
     <<dialogueEnd @GameManager>>
-
 -> : '여기서 자면 안돼...'
+    엄마: 벌써 잠들었니?
+    : 아니요
+    아빠: 대답 잘해야지
+    : 네
     <<dialogueEnd @GameManager>>
 ===
 
 title : thatSong
 ---
 : 대충 어린 시절에 들었던 노래 생각나는 내용
+: 라디오 버튼을 다시 누르면 노래가 멈추는거 같다
+: 다시 킬때마다 다른 노래가 나오는 건가?
 <<getPicture @GameManager 0>>
 <<dialogueEnd @GameManager>>
 ===
@@ -57,6 +68,8 @@ title : thatSong
 title: Light
 ---
 : 운전 중에 내부등 키면 눈부셔서 불편한 내용
+아빠: 내부등 키지마라
+아빠: 위험해
 <<getPicture @GameManager 1>>
 <<dialogueEnd @GameManager>>
 ===
@@ -64,6 +77,9 @@ title: Light
 title: FingerRunning
 ---
 : 졸린걸 참으려고 손가락으로 차창밖 풍경을 가지고 노는 내용
+: 여기엔 러닝액션을 넣어야 한다
+: 아직 없으니 일단 피로도를 회복
+<<getTired @GameManager 15>>
 <<getPicture @GameManager 2>>
 <<dialogueEnd @GameManager>>
 ===
@@ -80,6 +96,29 @@ title: GameOver
 title: Ending
 ---
 : 그땐 그랬지.
+: 게임 클리어
 <<gotoTitle @GameManager>>
+<<dialogueEnd @GameManager>>
+===
+
+title: Dad
+---
+아빠: 아빠 안 잔다.
+아빠: 명상하면서 운전하는 고도의 기술이야.
+<<dialogueEnd @GameManager>>
+===
+
+title: Mom
+---
+엄마: 엄마는 이럴 때 무슨말을 해야할지 모르겠어
+<<dialogueEnd @GameManager>>
+===
+
+title: YoungerSister
+---
+동생: 뭐
+: 그냥
+동생: 엄마! 얘가 괴롭혀
+엄마: 둘이 싸우지 마~
 <<dialogueEnd @GameManager>>
 ===

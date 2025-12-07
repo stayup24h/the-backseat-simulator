@@ -38,6 +38,6 @@ MonoBehaviour:
   - clip: {fileID: 8300000, guid: eda24e8c7f3b1ce40a1c734730ae26a0, type: 3}
     volume: 1
     pitch: 1
-  masterVolume: 0.07
+  masterVolume: 0.05
   masterPitch: 1
   playMode: 1

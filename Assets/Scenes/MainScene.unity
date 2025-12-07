@@ -686,7 +686,7 @@ Transform:
   m_GameObject: {fileID: 81867041}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.398, y: 1.058, z: -0.035}
+  m_LocalPosition: {x: -0.457, y: 1.087, z: 0.083}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1133,7 +1133,7 @@ Transform:
   m_GameObject: {fileID: 170012135}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.021, y: -0.161, z: 0.16800001}
+  m_LocalPosition: {x: 0.020999998, y: -0.204, z: 0.013000011}
   m_LocalScale: {x: 0.36, y: 0.36, z: 0.36}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -1486,7 +1486,7 @@ Transform:
   m_GameObject: {fileID: 245743135}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.425, y: 1.026, z: -0.086}
+  m_LocalPosition: {x: 0.425, y: 1.069, z: 0.069}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1552,7 +1552,7 @@ Transform:
   m_GameObject: {fileID: 271212794}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.4, y: 1.1, z: -1}
+  m_LocalPosition: {x: -0.4, y: 1.07, z: -0.95}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2224,7 +2224,7 @@ Transform:
   m_GameObject: {fileID: 459402058}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.204, z: 0}
+  m_LocalPosition: {x: 0, y: -0.14999998, z: 0}
   m_LocalScale: {x: 0.26, y: 0.26, z: 0.26}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -2335,7 +2335,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: YourgerSister
+          m_StringArgument: YoungerSister
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!1 &471285647
@@ -4449,13 +4449,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   _isPersistent: 0
   maxConcentration: 100
-  decreasePerSecond: 0
+  decreasePerSecond: 0.5
   decreasePerInteraction: 5
   playerCtrl: {fileID: 271212799}
   currentConcentration: 0
   isGameOver: 0
   isDialogueMode: 0
   isPaused: 0
+  isRunningAction: 0
   concentrationSlider: {fileID: 2071298516}
   titleUICanvasGroup: {fileID: 1203062389}
   pausePopup: {fileID: 171360849}
@@ -4565,7 +4566,7 @@ MonoBehaviour:
     m_ColorSpace: -1
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
-  dayCycleDuration: 300
+  dayCycleDuration: 200
 --- !u!114 &1179889303
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5469,7 +5470,7 @@ Transform:
   m_GameObject: {fileID: 1657280263}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.049, y: -0.19, z: 0.111}
+  m_LocalPosition: {x: 0.00999999, y: -0.21900004, z: -0.006999992}
   m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -5898,7 +5899,7 @@ Transform:
   m_GameObject: {fileID: 1833827351}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.3424, y: 1.034, z: -0.827}
+  m_LocalPosition: {x: 0.3424, y: 0.98, z: -0.827}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

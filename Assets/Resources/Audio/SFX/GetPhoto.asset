@@ -15,7 +15,7 @@ MonoBehaviour:
   soundName: GetPhoto
   clips:
   - clip: {fileID: 8300000, guid: 12fddd6db80ab264386fc287aac27b03, type: 3}
-    volume: 0.8
+    volume: 0.5
     pitch: 1
   masterVolume: 1
   masterPitch: 1

@@ -116,7 +116,7 @@ Material:
     - _XRMotionVectorsPass: 1
     - _ZWrite: 1
     - _outline_min: 1
-    - _outline_scale: 1.05
+    - _outline_scale: 0.008
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}

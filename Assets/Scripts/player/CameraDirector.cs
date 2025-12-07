@@ -54,7 +54,7 @@ public class CameraDirector : MonoBehaviour
         {
             // TODO: 나레이션일 때 기본 카메라 위치로 되돌리기
             // cameraTransform.DOKill(); // 진행 중인 트윈 중지
-            //playerCtrl.UnlockMouseLook();
+            playerCtrl.UnlockMouseLook();
             return;
         }
 
