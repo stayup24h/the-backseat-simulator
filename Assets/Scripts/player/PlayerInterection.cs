@@ -126,6 +126,7 @@ public class PlayerInteraction : MonoBehaviour
         if (RunningActionManager.Instance != null && RunningActionManager.Instance.IsRunningAction)
         {
             Debug.Log("jump");
+            RunningActionManager.Instance.PerformJumpGesture();
             return;
         }
         

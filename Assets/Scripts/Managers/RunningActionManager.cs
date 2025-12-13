@@ -32,6 +32,25 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
     private Sequence rightHandSeq;
     private Sequence leftHandSeq;
 
+    [Header("JumpSetting")]
+    [SerializeField] private float jumpHeight = 100f; // 조정 가능한 값
+    [SerializeField] private float jumpDuration = 0.3f; // 올라가는 시간
+    [SerializeField] private float fallDuration = 0.3f;
+    
+    // 점프 중 플래그: 점프가 완료될 때까지 추가 점프를 받지 않음
+    private bool isJumping = false;
+    
+    // Prefab 생성 관련 필드
+    [Header("Prefab Spawning")]
+    [SerializeField] private GameObject prefabToSpawn;
+    [SerializeField] private Transform spawnParent;
+    [SerializeField] private float spawnInterval = 0.5f;
+    [SerializeField] private Vector3 spawnOffset = Vector3.zero;
+
+    private float spawnTimer;
+    private bool isSpawning;
+    private Coroutine spawnCoroutine;
+
     private void KillAndClearSequences()
     {
         if (rightHandSeq != null)
@@ -57,6 +76,7 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
         isEnding = false;
         pendingEnd = false;
         isStarting = true; // 시작 중 표시
+        isJumping = false; // 점프 플래그 리셋
 
         // 저장
         cameraDirector = cameraDir;
@@ -159,6 +179,9 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
             pendingEnd = false;
             EndRunningAction();
         }
+
+        // Prefab 생성 시작
+        StartSpawning();
     }
 
     public void EndRunningAction()
@@ -248,6 +271,8 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
         IsRunningAction = false;
         // 종료 플래그 리셋
         isEnding = false;
+        // 점프 플래그 리셋
+        isJumping = false;
 
         // 플레이어 마우스 잠금 해제
         playerCtrl?.UnlockMouseLook();
@@ -260,5 +285,98 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
 
         // 모든 시퀀스 정리
         KillAndClearSequences();
+
+        // Prefab 생성 중지
+        StopSpawning();
+    }
+
+    /// <summary>
+    /// 점프 제스처를 수행합니다 (왼손을 위로 올렸다가 내려옵니다).
+    /// 점프 중에는 추가 점프가 불가능합니다.
+    /// </summary>
+    public void PerformJumpGesture()
+    {
+        if (!IsRunningAction || leftHandTransform == null) return;
+
+        // 이미 점프 중이면 무시
+        if (isJumping) return;
+
+        // 점프 중 플래그 설정
+        isJumping = true;
+
+        // 현재 위치 저장
+        Vector3 currentPos = leftHandTransform.anchoredPosition;
+
+        // 왼손을 위로 올리는 시퀀스
+        Sequence jumpSeq = DOTween.Sequence();
+        jumpSeq
+            .Append(leftHandTransform.DOAnchorPosY(currentPos.y + jumpHeight, jumpDuration).SetEase(Ease.OutQuad))
+            .Append(leftHandTransform.DOAnchorPosY(currentPos.y, fallDuration).SetEase(Ease.InQuad))
+            .OnComplete(() =>
+            {
+                // 점프 완료 - 플래그 리셋
+                isJumping = false;
+            });
+    }
+
+    /// <summary>
+    /// Prefab 생성을 시작합니다.
+    /// </summary>
+    private void StartSpawning()
+    {
+        if (isSpawning || prefabToSpawn == null) return;
+
+        isSpawning = true;
+        spawnCoroutine = StartCoroutine(SpawnPrefabCoroutine());
+    }
+
+    /// <summary>
+    /// Prefab 생성을 중지합니다.
+    /// </summary>
+    private void StopSpawning()
+    {
+        if (!isSpawning) return;
+
+        isSpawning = false;
+        if (spawnCoroutine != null)
+        {
+            StopCoroutine(spawnCoroutine);
+            spawnCoroutine = null;
+        }
+    }
+
+    /// <summary>
+    /// 일정한 간격으로 prefab을 생성하는 코루틴입니다.
+    /// </summary>
+    private System.Collections.IEnumerator SpawnPrefabCoroutine()
+    {
+        while (isSpawning && IsRunningAction)
+        {
+            yield return new WaitForSeconds(spawnInterval);
+
+            if (prefabToSpawn != null)
+            {
+                SpawnPrefab();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Prefab을 한 개 생성합니다.
+    /// </summary>
+    private void SpawnPrefab()
+    {
+        // spawnParent가 있으면 그 위치에서 생성, 없으면 월드 좌표에서 생성
+        Vector3 spawnPos = spawnParent != null 
+            ? spawnParent.position + spawnOffset 
+            : spawnOffset;
+
+        Quaternion spawnRot = spawnParent != null 
+            ? spawnParent.rotation 
+            : Quaternion.identity;
+
+        Instantiate(prefabToSpawn, spawnPos, spawnRot, spawnParent);
+
+        Debug.Log($"Prefab spawned at {spawnPos}");
     }
 }
