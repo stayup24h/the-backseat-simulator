@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Yarn.Unity;
+using System.Collections;
 
 public class PlayerCtrl : MonoBehaviour
 {
@@ -57,35 +58,62 @@ public class PlayerCtrl : MonoBehaviour
     // [추가] 외부에서 호출할 잠금 해제 함수 (게임 모드)
     public void UnlockMouseLook()
     {
-        //if(GameManager.Instance.isGameOver) return;
-        
-        isLocked = false;
-        Cursor.lockState = CursorLockMode.Locked; // 커서 숨기기
-        Cursor.visible = false;
-        
+        // 잠금 해제를 바로 적용하지 않고, 동기화 작업을 먼저 수행합니다.
+        // 이렇게 하면 플레이어와 카메라의 회전 동기화 과정에서 발생하는 순간적인 시각적 점프를 방지할 수 있습니다.
+
+        // 먼저 입력 처리를 차단합니다.
+        isLocked = true;
+
+        // 1) 현재 카메라의 월드 회전을 저장
+        if (cameraTransform == null)
+        {
+            cameraTransform = GetComponentInChildren<Camera>()?.transform;
+            if (cameraTransform == null)
+            {
+                // 카메라가 없으면 그냥 잠금 해제
+                StartCoroutine(ReleaseLockNextFrame());
+                Cursor.lockState = CursorLockMode.Locked;
+                Cursor.visible = false;
+                lookInput = Vector2.zero;
+                return;
+            }
+        }
+
+        Quaternion cameraWorldRotation = cameraTransform.rotation;
+
+        // 2) 플레이어의 Y축(수평) 방향을 카메라의 수평 방향으로 맞춥니다.
         Vector3 cameraForward = cameraTransform.forward;
-        
-        // Y축(높이)을 0으로 만들어 수평 방향 벡터만 추출합니다.
         Vector3 playerForward = new Vector3(cameraForward.x, 0f, cameraForward.z).normalized;
 
-        // 수평 방향이 0이 아닌 경우에만 (카메라가 정수직 상/하를 보고 있지 않을 때)
         if (playerForward.sqrMagnitude > 0.001f)
         {
-            // Player(transform)의 정면을 카메라의 수평 정면과 일치시킵니다.
             transform.rotation = Quaternion.LookRotation(playerForward, Vector3.up);
         }
 
-        // 2. 상하(X) 회전 동기화 (Camera)
-        // Player의 Y축 회전이 동기화되었으므로, 이제 카메라의 로컬 X축 회전값을 가져옵니다.
+        // 3) 플레이어 회전 적용 후 카메라의 월드 회전을 복원하여 시각적 점프를 제거합니다.
+        cameraTransform.rotation = cameraWorldRotation;
+
+        // 4) 카메라의 local X 회전(상하)를 xRotation에 동기화합니다.
         float currentXAngle = cameraTransform.localEulerAngles.x;
-
-        // localEulerAngles는 0~360 값을 반환하므로, -180~180 범위로 변환합니다.
-        if (currentXAngle > 180)
-        {
-            currentXAngle -= 360f;
-        }
-
-        // 스크립트의 xRotation 변수를 현재 카메라의 X축 각도로 덮어씁니다.
+        if (currentXAngle > 180f) currentXAngle -= 360f;
         xRotation = currentXAngle;
+
+        // 5) 입력을 초기화하여 Unlock 직후 남아있는 마우스 입력이 즉시 적용되지 않도록 합니다.
+        lookInput = Vector2.zero;
+
+        // 6) 커서 상태를 설정하고 잠금 해제는 다음 프레임으로 지연합니다.
+        Cursor.lockState = CursorLockMode.Locked; // 커서 잠금
+        Cursor.visible = false;
+        StartCoroutine(ReleaseLockNextFrame());
+    }
+
+    private IEnumerator ReleaseLockNextFrame()
+    {
+        // 프레임을 한 번 기다려 Update에서 즉시 적용되는 입력을 차단
+        yield return null;
+        // 짧은 추가 지연으로 안전성 증가
+        yield return new WaitForEndOfFrame();
+        lookInput = Vector2.zero;
+        isLocked = false;
     }
 }
