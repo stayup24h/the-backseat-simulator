@@ -88,4 +88,14 @@ public class CameraDirector : MonoBehaviour
         // 3. 리스트에 등록되지 않은 캐릭터 이름인 경우
         Debug.LogWarning($"[CameraDirector] '{characterName}'에 해당하는 타겟을 찾을 수 없습니다.");
     }
+
+    public void FocusRunningAction()
+    {
+        playerCtrl.LockMouseLook();
+        Vector3 targetPosition = characterTargets[3].targetTransform.position + characterTargets[3].offset;
+        Vector3 direction = targetPosition - cameraTransform.position;
+        Quaternion targetRotation = Quaternion.LookRotation(direction);
+        cameraTransform.DOKill(true);
+        cameraTransform.DORotateQuaternion(targetRotation, tweenDuration).SetEase(easeType); // 설정한 Ease 타입 적용
+    }
 }

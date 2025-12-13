@@ -34,15 +34,11 @@ public class GameManager : SingletonBehaviour<GameManager>
     public bool isGameOver = true; // 게임 오버 상태 플래그
     public bool isDialogueMode;
     public bool isPaused;
-    public bool isRunningAction;
+    // public bool isRunningAction; // RunningActionManager로 분리되어 제거
+    public CameraDirector cameraDirector;
 
-    // --- UI 연결 ---
+    // --- UI 관련 처리는 UIManager로 위임됩니다 ---
     [Header("UI")]
-    public Slider concentrationSlider; // 인스펙터에서 연결할 슬라이더
-    public CanvasGroup titleUICanvasGroup;
-    [SerializeField] public GameObject pausePopup;
-    [SerializeField] public GameObject itemGetPopup; // 아이템 획득 팝업 UI
-    [SerializeField] public TMPro.TMP_Text itemDescriptionText; // 아이템 획득 팝업 설명 텍스트
     [SerializeField] public DialogueRunner dialogueRunner;
 
     [SerializeField] public int numPictures = 3;
@@ -70,16 +66,21 @@ public class GameManager : SingletonBehaviour<GameManager>
     [Header("directing")]
     public DaynightController daynightController;
 
-    public bool isItemPopupActive = false; // 아이템 획득 팝업 활성화 상태
-
     private void OnEnable()
     {
-        dialogueRunner.onDialogueStart.AddListener(() => isDialogueMode = true);
+        // dialogueRunner 또는 onDialogueStart가 null일 수 있으므로 안전하게 구독합니다.
+        dialogueRunner?.onDialogueStart?.AddListener(HandleDialogueStart);
     }
 
     private void OnDisable()
     {
-        dialogueRunner.onDialogueStart.RemoveListener(() => isDialogueMode = true);
+        // 안전하게 구독 해제
+        dialogueRunner?.onDialogueStart?.RemoveListener(HandleDialogueStart);
+    }
+
+    private void HandleDialogueStart()
+    {
+        isDialogueMode = true;
     }
 
     void Start()
@@ -124,35 +125,64 @@ public class GameManager : SingletonBehaviour<GameManager>
     [YarnCommand("gameStart")]
     public void GameStart()
     {
-
-        titleUICanvasGroup.DOFade(0f, 1.0f).OnComplete(() =>
+        isPaused = true;
+        // UIManager에 타이틀 페이드와 인게임 UI 활성화를 위임
+        if (UIManager.Instance != null)
         {
-            titleUICanvasGroup.gameObject.SetActive(false);
+            UIManager.Instance.FadeOutTitleUI();
+            UIManager.Instance.SetInGameUIActive(true);
+        }
+
+        MovePictureToTarget(() =>
+        {
+            InitializeGameComponents();
+            PlayInitialSounds();
+            MoveHandsToTarget(() =>
+            {
+                dialogueRunner.StartDialogue("tireddrive");
+                isPaused = false;
+            });
         });
+    }
 
-
-
+    private void MovePictureToTarget(System.Action onComplete)
+    {
         pictureRectTransform.DOAnchorPos(pictureTargetTransform.position, moveDuration).SetEase(Ease.OutCirc);
         pictureRectTransform.DORotate(pictureTargetTransform.rotation, moveDuration).SetEase(Ease.OutCirc);
         pictureRectTransform.DOScale(pictureTargetTransform.scale, moveDuration).SetEase(Ease.OutCirc).OnComplete(() =>
         {
-            Initialize();
-            daynightController.Initialize();
-            playerCtrl.Initialize();
-            SoundManager.Instance.PlayPositionalNoise("noise", noisePosition, noiseSpatialBlend);
-            rightHandTransform.DOAnchorPos(rightHandTargetTransform.position, 1).SetEase(Ease.OutCirc);
-            rightHandTransform.DORotate(rightHandTargetTransform.rotation, 1);
-            rightHandTransform.DOScale(rightHandTargetTransform.scale, 1);
-            dialogueRunner.StartDialogue("tireddrive");
+            onComplete?.Invoke();
+        });
+    }
+
+    private void InitializeGameComponents()
+    {
+        Initialize();
+        daynightController.Initialize();
+        playerCtrl.Initialize();
+    }
+
+    private void PlayInitialSounds()
+    {
+        SoundManager.Instance.PlayPositionalNoise("noise", noisePosition, noiseSpatialBlend);
+    }
+
+    private void MoveHandsToTarget(System.Action onComplete)
+    {
+        rightHandTransform.DOAnchorPos(rightHandTargetTransform.position, 1).SetEase(Ease.OutCirc);
+        rightHandTransform.DORotate(rightHandTargetTransform.rotation, 1);
+        rightHandTransform.DOScale(rightHandTargetTransform.scale, 1).OnComplete(() =>
+        {
+            onComplete?.Invoke();
         });
     }
 
     // --- UI 업데이트 ---
     private void UpdateConcentrationUI()
     {
-        if ( concentrationSlider != null)
+        if (UIManager.Instance != null)
         {
-            concentrationSlider.value = currentConcentration;
+            UIManager.Instance.SetConcentration(currentConcentration, maxConcentration);
         }
     }
 
@@ -177,15 +207,14 @@ public class GameManager : SingletonBehaviour<GameManager>
         isDialogueMode = false;
         isPaused = false;
 
-        // 슬라이더 UI 초기 설정
-        if (concentrationSlider != null)
+        // 슬라이더 UI 초기 설정을 UIManager로 위임
+        if (UIManager.Instance != null)
         {
-            concentrationSlider.maxValue = maxConcentration;
-            concentrationSlider.value = currentConcentration;
+            UIManager.Instance.SetConcentration(currentConcentration, maxConcentration);
         }
         else
         {
-            Debug.LogError("Concentration Slider가 GameManager에 연결되지 않았습니다!");
+            Debug.LogError("UIManager 인스턴스가 없습니다. Concentration UI를 설정할 수 없습니다.");
         }
 
         // pictures 초기화
@@ -229,7 +258,10 @@ public class GameManager : SingletonBehaviour<GameManager>
 
     public void Nope()
     {
-        pausePopup.SetActive(false);
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.SetPausePopupActive(false);
+        }
         isGameOver = false;
         isPaused = false;
         playerCtrl.UnlockMouseLook();
@@ -238,7 +270,12 @@ public class GameManager : SingletonBehaviour<GameManager>
     [YarnCommand("gotoTitle")]
     public void GotoTitle()
     {
-        pausePopup.SetActive(false);
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.SetPausePopupActive(false);
+            UIManager.Instance.SetInGameUIActive(true);
+        }
+
         isGameOver = true;
         isPaused = false;
         SoundManager.Instance.BGMFadeOut();
@@ -252,17 +289,25 @@ public class GameManager : SingletonBehaviour<GameManager>
                 pictures[i].isGot = false;
                 pictures[i].pictureObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
             }
-            
+
             rightHandTransform.DOAnchorPos(rightHandStartTransform.position, 1).SetEase(Ease.OutCirc);
             rightHandTransform.DORotate(rightHandStartTransform.rotation, 1);
             rightHandTransform.DOScale(rightHandStartTransform.scale, 1);
-            titleUICanvasGroup.gameObject.SetActive(true);
-            titleUICanvasGroup.DOFade(1f, 1.0f).OnComplete(()=>
+
+            if (UIManager.Instance != null)
+            {
+                UIManager.Instance.FadeInTitleUI(onComplete: () =>
+                {
+                    Cursor.lockState = CursorLockMode.Confined;
+                    Cursor.visible = true;
+                    //GameReset();
+                });
+            }
+            else
             {
                 Cursor.lockState = CursorLockMode.Confined;
                 Cursor.visible = true;
-                //GameReset();
-            });
+            }
         });
     }
 
@@ -272,16 +317,16 @@ public class GameManager : SingletonBehaviour<GameManager>
         if (pictureIndex < 0 || pictureIndex >= numPictures || pictures[pictureIndex].isGot) return;
         pictures[pictureIndex].isGot = true;
         SoundManager.Instance.PlaySFX("GetPhoto");
-        pictures[pictureIndex].pictureObject.GetComponent<Image>().DOFade(1f, 1.0f).OnComplete(()=>
+        pictures[pictureIndex].pictureObject.GetComponent<Image>().DOFade(1f, 1.0f).OnComplete(() =>
         {
             CheckGameClear();
         });
-        itemGetPopup.SetActive(true); // 아이템 획득 팝업 활성화
-        if (itemDescriptionText != null) // itemDescriptionText가 할당되어 있다면
+
+        // UIManager를 통해 아이템 팝업을 표시
+        if (UIManager.Instance != null)
         {
-            itemDescriptionText.text = pictures[pictureIndex].pictureDescription; // 팝업 설명 텍스트 설정
+            UIManager.Instance.ShowItemPopup(pictures[pictureIndex].pictureDescription);
         }
-        isItemPopupActive = true; // 팝업 활성화 상태로 설정
     }
 
     private void CheckGameClear()
@@ -299,7 +344,8 @@ public class GameManager : SingletonBehaviour<GameManager>
 
     private IEnumerator ClearGameCoroutine()
     {
-        yield return new WaitUntil(() => !isDialogueMode && !isItemPopupActive);
+        // UIManager에서 팝업 활성 상태를 확인하도록 변경
+        yield return new WaitUntil(() => !isDialogueMode && (UIManager.Instance == null || !UIManager.Instance.IsItemPopupActive));
 
         Debug.Log("모든 사진 획득! 게임 클리어!");
         dialogueRunner.StartDialogue("Ending");
@@ -315,25 +361,44 @@ public class GameManager : SingletonBehaviour<GameManager>
 
     public void CloseItemPopup()
     {
-        itemGetPopup.SetActive(false); // 아이템 획득 팝업 비활성화
-        isItemPopupActive = false; // 팝업 비활성화 상태로 설정
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.CloseItemPopup();
+        }
     }
-    
-    /// <summary>
-    /// 특정 액션이 시작될 때 호출하여 isRunningAction을 true로 설정합니다.
-    /// </summary>
+
     [YarnCommand("RunningActionStart")]
     public void StartRunningAction()
     {
-        isRunningAction = true;
-    }
+        if (isPaused) return;
 
+        if (RunningActionManager.Instance == null)
+        {
+            Debug.LogWarning("RunningActionManager 인스턴스가 없습니다. RunningAction을 시작할 수 없습니다.");
+            return;
+        }
+
+        // RunningActionManager로 위임
+        RunningActionManager.Instance.StartRunningAction(cameraDirector, playerCtrl,
+            rightHandTransform, rightHandStartTransform, rightHandTargetTransform,
+            leftHandTransform, leftHandStartTransform, leftHandTargetTransform);
+    }
+    
     /// <summary>
     /// 특정 액션이 종료될 때 호출하여 isRunningAction을 false로 설정합니다.
     /// </summary>
+    [YarnCommand("RunningActionEnd")]
     public void EndRunningAction()
     {
-        isRunningAction = false;
+        if (isPaused) return;
+
+        if (RunningActionManager.Instance == null)
+        {
+            Debug.LogWarning("RunningActionManager 인스턴스가 없습니다. RunningAction을 종료할 수 없습니다.");
+            return;
+        }
+
+        RunningActionManager.Instance.EndRunningAction();
     }
 
     [YarnCommand("getTired")]

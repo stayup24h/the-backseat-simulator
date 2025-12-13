@@ -82,6 +82,7 @@ title: FingerRunning
 <<getTired @GameManager 15>>
 <<getPicture @GameManager 2>>
 <<dialogueEnd @GameManager>>
+<<RunningActionEnd @GameManager>>
 ===
 
 title: GameOver

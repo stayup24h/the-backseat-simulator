@@ -51,7 +51,11 @@ public class PlayerInteraction : MonoBehaviour
     /// </summary>
     private void CheckForInteractable()
     {
-        if (GameManager.Instance.currentConcentration < 5 || GameManager.Instance.isPaused || GameManager.Instance.isDialogueMode || GameManager.Instance.isGameOver)
+        if (GameManager.Instance.currentConcentration < 5 
+            || GameManager.Instance.isPaused 
+            || GameManager.Instance.isDialogueMode 
+            || GameManager.Instance.isGameOver
+            || RunningActionManager.Instance != null && RunningActionManager.Instance.IsRunningAction)
         {
             HideUI();
             return;
@@ -86,7 +90,6 @@ public class PlayerInteraction : MonoBehaviour
             currentInteractable.Unhighlight(); // [추가] (이전 것은 끄고)
             newInteractable.Highlight(); // [추가] (새로운 것은 켠다)
         }
-
         currentInteractable = newInteractable;
     }
 
@@ -113,12 +116,19 @@ public class PlayerInteraction : MonoBehaviour
     public void OnInteract(InputValue value)
     {
         // 아이템 획득 팝업이 활성화되어 있다면 팝업을 닫습니다.
-        if (value.isPressed && GameManager.Instance.isItemPopupActive)
+        if (value.isPressed && UIManager.Instance != null && UIManager.Instance.IsItemPopupActive)
         {
-            GameManager.Instance.CloseItemPopup();
+            UIManager.Instance.CloseItemPopup();
             return; // 팝업을 닫았으므로 다른 상호작용은 처리하지 않습니다.
         }
 
+        if (GameManager.Instance.isPaused) return;
+        if (RunningActionManager.Instance != null && RunningActionManager.Instance.IsRunningAction)
+        {
+            Debug.Log("jump");
+            return;
+        }
+        
         // 버튼을 눌렀고, 현재 바라보고 있는 상호작용 오브젝트가 있다면
         
         if (value.isPressed && dialogueRunner != null && dialogueRunner.IsDialogueRunning )
@@ -144,10 +154,10 @@ public class PlayerInteraction : MonoBehaviour
     
     public void OnPause(InputValue value)
     {
-        if(GameManager.Instance.isGameOver) return;
-        if (GameManager.Instance.isRunningAction)
+        if(GameManager.Instance.isGameOver||GameManager.Instance.isPaused) return;
+        if (RunningActionManager.Instance != null && RunningActionManager.Instance.IsRunningAction)
         {
-            GameManager.Instance.EndRunningAction();
+            RunningActionManager.Instance.EndRunningAction();
             return;
         }
         
