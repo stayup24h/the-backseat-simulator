@@ -31,7 +31,7 @@ title: RecallWithPhoto
 position: -66,95
 ---
 : 어린 시절 찍었던 사진을 찾았다.
-: 2008년 9월, 여행을 마치고 돌아오던 길.
+: 2008년 8월, 여행을 마치고 돌아오던 길.
 : 분명 잊지 못할 추억이라고 생각했는데...
 : 이상하다. 정작 중요한 게 기억나지 않아.
 : 마치 사진 귀퉁이가 찢어진 것처럼 머릿속이 하얗게 비어있어...
@@ -59,19 +59,13 @@ position: -285,252
 -> : 네
     아빠 : 그럼 출발해 볼까?
     <<dialogueEnd @GameManager>>
--> : '여기서 자면 안돼...'
-    엄마: 벌써 잠들었니?
-    : 아니요
-    아빠: 대답 잘해야지
-    : 네
-    <<dialogueEnd @GameManager>>
 ===
 
 title : thatSong
 color: blue
 position: -286,-201
 ---
-: 대충 어린 시절에 들었던 노래 생각나는 내용
+: 어린 시절 유행하는 노래가 라디오에서 흘러나왔다.
 : 라디오 버튼을 다시 누르면 노래가 멈추는거 같다
 : 다시 킬때마다 다른 노래가 나오는 건가?
 <<getPicture @GameManager 0>>
@@ -81,7 +75,7 @@ position: -286,-201
 title: Light
 position: 160,250
 ---
-: 운전 중에 내부등 키면 눈부셔서 불편한 내용
+: 내부 등이 켜졌다.
 아빠: 내부등 키지마라
 아빠: 위험해
 <<getPicture @GameManager 1>>
@@ -91,10 +85,8 @@ position: 160,250
 title: FingerRunning
 position: -68,-202
 ---
-: 졸린걸 참으려고 손가락으로 차창밖 풍경을 가지고 노는 내용
-: 여기엔 러닝액션을 넣어야 한다
-: 아직 없으니 일단 피로도를 회복
-<<getTired @GameManager 15>>
+: 어린 시절 이런식으로 졸음을 이겨냈던것 같다.
+: 참 재미있었어.
 <<getPicture @GameManager 2>>
 <<dialogueEnd @GameManager>>
 <<RunningActionEnd @GameManager>>
@@ -103,7 +95,7 @@ position: -68,-202
 title: GameOver
 position: 153,-200
 ---
-: 졸려서 자버렸다.
+: 그만 잠에 들고 말았다.
 : 게임 오버
 <<wait 1>>
 <<gotoTitle @GameManager>>
@@ -114,7 +106,8 @@ title: Ending
 position: -284,-58
 ---
 : 그땐 그랬지.
-: 게임 클리어
+: 내 소중한 추억을 지켜낸것만 같다
+: 클리어
 <<gotoTitle @GameManager>>
 <<dialogueEnd @GameManager>>
 ===

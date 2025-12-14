@@ -1,7 +1,7 @@
 {
   "projectFileVersion": 3,
   "sourceFiles": [
-    "test.yarn"
+    "BackSeat.yarn"
   ],
   "excludeFiles": [
     "**/*~/*",

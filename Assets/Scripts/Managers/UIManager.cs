@@ -17,11 +17,11 @@ public class UIManager : SingletonBehaviour<UIManager>
     public GameObject pausePopup;
     public GameObject itemGetPopup;
     public TMP_Text itemDescriptionText;
-    public CanvasGroup tiredUICanvasGroup; // Tired UI Ãß°¡
+    public CanvasGroup tiredUICanvasGroup; // Tired UI 
 
     public bool IsItemPopupActive { get; private set; }
     
-    private Sequence tiredBlinkSequence; // Tired UI ±ô¹ÚÀÓ ½ÃÄö½º
+    private Sequence tiredBlinkSequence; // Tired UI ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
     public void SetConcentration(float current, float max)
     {
@@ -34,8 +34,8 @@ public class UIManager : SingletonBehaviour<UIManager>
     {
         if (titleUICanvasGroup == null)
         {
-    onComplete?.Invoke();
-        return;
+            onComplete?.Invoke();
+            return;
         }
 
         titleUICanvasGroup.DOFade(0f, duration).OnComplete(() =>
@@ -47,10 +47,10 @@ titleUICanvasGroup.gameObject.SetActive(false);
 
     public void FadeInTitleUI(float duration = 1f, Action onComplete = null)
     {
-        if (titleUICanvasGroup == null)
-     {
-      onComplete?.Invoke();
-  return;
+        if (titleUICanvasGroup == null) 
+        {
+            onComplete?.Invoke();
+            return;
         }
 
         titleUICanvasGroup.gameObject.SetActive(true);
@@ -69,9 +69,9 @@ titleUICanvasGroup.gameObject.SetActive(false);
         }
         else
         {
-  pauseUI.DOFade(0f, 0.3f).OnComplete(() =>
-     {
-     pauseUI.gameObject.SetActive(false);
+            pauseUI.DOFade(0f, 0.3f).OnComplete(() =>
+            {
+                pauseUI.gameObject.SetActive(false);
             });
         }
     }
@@ -82,21 +82,21 @@ titleUICanvasGroup.gameObject.SetActive(false);
         
         if (active)
         {
-        itemGetUI.gameObject.SetActive(true);
+            itemGetUI.gameObject.SetActive(true);
             itemGetUI.alpha = 0f;
-      itemGetUI.DOFade(1f, 0.3f);
+            itemGetUI.DOFade(1f, 0.3f);
         }
         else
         {
-    itemGetUI.DOFade(0f, 0.3f).OnComplete(() =>
-     {
-       itemGetUI.gameObject.SetActive(false);
+            itemGetUI.DOFade(0f, 0.3f).OnComplete(() =>
+            {
+                itemGetUI.gameObject.SetActive(false);
             });
         }
     }
 
     /// <summary>
-    /// In Game UI (Pause UI + Item Get UI)¸¦ FadeOutÇÕ´Ï´Ù.
+    /// In Game UI (Pause UI + Item Get UI)ï¿½ï¿½ FadeOutï¿½Õ´Ï´ï¿½.
     /// </summary>
     public void FadeOutInGameUI(float duration = 0.5f, Action onComplete = null)
     {
@@ -106,32 +106,32 @@ titleUICanvasGroup.gameObject.SetActive(false);
         // Pause UI FadeOut
         if (pauseUI != null)
         {
-        totalAnimations++;
+            totalAnimations++;
             pauseUI.DOFade(0f, duration).OnComplete(() =>
             {
-     completedCount++;
-      if (completedCount == totalAnimations)
-   {
-  onComplete?.Invoke();
-     }
-        });
+                completedCount++;
+                if (completedCount == totalAnimations)
+                {
+                    onComplete?.Invoke();
+                }
+            });
         }
 
         // Item Get UI FadeOut
         if (itemGetUI != null)
         {
-      totalAnimations++;
- itemGetUI.DOFade(0f, duration).OnComplete(() =>
-  {
-  completedCount++;
-      if (completedCount == totalAnimations)
- {
-            onComplete?.Invoke();
-    }
-         });
+            totalAnimations++;
+            itemGetUI.DOFade(0f, duration).OnComplete(() =>
+            {
+                completedCount++;
+                if (completedCount == totalAnimations)
+                {
+                        onComplete?.Invoke();
+                } 
+            });
         }
 
-        // µÑ ´Ù nullÀÌ¸é Áï½Ã ÄÝ¹é È£Ãâ
+        // ï¿½ï¿½ ï¿½ï¿½ nullï¿½Ì¸ï¿½ ï¿½ï¿½ï¿½ ï¿½Ý¹ï¿½ È£ï¿½ï¿½
         if (totalAnimations == 0)
         {
          onComplete?.Invoke();
@@ -139,7 +139,7 @@ titleUICanvasGroup.gameObject.SetActive(false);
     }
 
     /// <summary>
-    /// In Game UI (Pause UI + Item Get UI)¸¦ FadeInÇÕ´Ï´Ù.
+    /// In Game UI (Pause UI + Item Get UI)ï¿½ï¿½ FadeInï¿½Õ´Ï´ï¿½.
     /// </summary>
     public void FadeInInGameUI(float duration = 0.5f, Action onComplete = null)
     {
@@ -147,39 +147,38 @@ titleUICanvasGroup.gameObject.SetActive(false);
         int totalAnimations = 0;
 
         // Pause UI FadeIn
-if (pauseUI != null)
-  {
-      totalAnimations++;
+        if (pauseUI != null)
+        { 
+            totalAnimations++;
             pauseUI.gameObject.SetActive(true);
-         pauseUI.DOFade(1f, duration).OnComplete(() =>
-  {
-         completedCount++;
-            if (completedCount == totalAnimations)
-    {
-      onComplete?.Invoke();
-            }
-    });
+            pauseUI.DOFade(1f, duration).OnComplete(() =>
+            {
+                completedCount++;
+                if (completedCount == totalAnimations)
+                {
+                    onComplete?.Invoke();
+                }
+            });
         }
 
         // Item Get UI FadeIn
       if (itemGetUI != null)
         {
             totalAnimations++;
- itemGetUI.gameObject.SetActive(true);
-  itemGetUI.DOFade(1f, duration).OnComplete(() =>
-          {
-       completedCount++;
-          if (completedCount == totalAnimations)
-      {
-        onComplete?.Invoke();
-            }
-         });
+            itemGetUI.gameObject.SetActive(true);
+            itemGetUI.DOFade(1f, duration).OnComplete(() =>
+            { 
+                completedCount++;
+                if (completedCount == totalAnimations)
+                {
+                    onComplete?.Invoke();
+                }
+            });
         }
-
-        // µÑ ´Ù nullÀÌ¸é Áï½Ã ÄÝ¹é È£Ãâ
+      
         if (totalAnimations == 0)
-      {
- onComplete?.Invoke();
+        {
+            onComplete?.Invoke();
         }
     }
 
@@ -215,45 +214,38 @@ if (pauseUI != null)
         if (endingUICanvasGroup == null) return;
         endingUICanvasGroup.gameObject.SetActive(active);
     }
-
-    /// <summary>
-    /// Tired UI¸¦ ±ô¹ÚÀÌ°Ô ÇÕ´Ï´Ù. ÇÔ¼ö¸¦ ´Ù½Ã È£ÃâÇÒ ¶§±îÁö °è¼Ó ±ô¹ÚÀÔ´Ï´Ù.
-    /// </summary>
+    
     [YarnCommand("startTiredUiBlink")]
     public void StartTiredUIBlink()
     {
    if (tiredUICanvasGroup == null) return;
 
-   // ±âÁ¸ ½ÃÄö½º°¡ ÀÖÀ¸¸é ÁßÁö
+   // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         if (tiredBlinkSequence != null) tiredBlinkSequence.Kill();
 
-   // Tired UI È°¼ºÈ­
+   // Tired UI
         tiredUICanvasGroup.gameObject.SetActive(true);
 
-        // ±ô¹ÚÀÌ´Â ½ÃÄö½º »ý¼º (¹«ÇÑ ¹Ýº¹)
+        
         tiredBlinkSequence = DOTween.Sequence();
         tiredBlinkSequence
-            .Append(tiredUICanvasGroup.DOFade(0f, 0.3f))  // 0.3ÃÊ¿¡ Åõ¸íÇÏ°Ô
-          .Append(tiredUICanvasGroup.DOFade(1f, 0.3f))  // 0.3ÃÊ¿¡ ºÒÅõ¸íÇÏ°Ô
-            .SetLoops(-1, LoopType.Restart);              // ¹«ÇÑ ¹Ýº¹
+            .Append(tiredUICanvasGroup.DOFade(0f, 1f))  
+          .Append(tiredUICanvasGroup.DOFade(1f, 1f))  
+            .SetLoops(-1, LoopType.Restart);             
     }
-
-/// <summary>
-    /// Tired UI ±ô¹ÚÀÓÀ» ÁßÁöÇÕ´Ï´Ù.
-    /// </summary>
+    
     [YarnCommand("stopTiredUiBlink")]
     public void StopTiredUIBlink()
-{
+    {
         if (tiredBlinkSequence != null)
         {
             tiredBlinkSequence.Kill();
             tiredBlinkSequence = null;
         }
-
-        // Tired UI¸¦ ºñÈ°¼ºÈ­ÇÏ°Å³ª ¿ø·¡ »óÅÂ·Î º¹¿ø
+        
         if (tiredUICanvasGroup != null)
- {
-        tiredUICanvasGroup.alpha = 1f;
-      }
+        {
+            tiredUICanvasGroup.alpha = 1f;
+        }
     }
 }

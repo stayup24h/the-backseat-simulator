@@ -68,6 +68,9 @@ public class GameManager : SingletonBehaviour<GameManager>
     [Header("directing")]
     public DaynightController daynightController;
 
+    // 깜빡임 상태를 중복 호출로 인해 반복 생성하는 것을 방지하는 로컬 플래그
+    private bool isTiredBlinking = false;
+
     private void OnEnable()
     {
         // dialogueRunner 또는 onDialogueStart가 null일 수 있으므로 안전하게 구독합니다.
@@ -187,6 +190,24 @@ public class GameManager : SingletonBehaviour<GameManager>
         if (UIManager.Instance != null)
         {
             UIManager.Instance.SetConcentration(currentConcentration, maxConcentration);
+
+            // 피로도가 10 이하일 때 UI를 깜빡이게 하고, 그보다 높으면 중지
+            if (currentConcentration <= 10f)
+            {
+                if (!isTiredBlinking)
+                {
+                    UIManager.Instance.StartTiredUIBlink();
+                    isTiredBlinking = true;
+                }
+            }
+            else
+            {
+                if (isTiredBlinking)
+                {
+                    UIManager.Instance.StopTiredUIBlink();
+                    isTiredBlinking = false;
+                }
+            }
         }
     }
 
@@ -211,30 +232,31 @@ public class GameManager : SingletonBehaviour<GameManager>
         Debug.Log("게임 초기화 시작...");
 
         // 게임 시작 시 집중력 초기화
-    currentConcentration = maxConcentration;
-      isDialogueMode = false;
-      isPaused = false;
-    isGameCleared = false;
+        currentConcentration = maxConcentration;
+        isDialogueMode = false;
+        isPaused = false;
+        isGameCleared = false;
 
-   // 슬라이더 UI 초기 설정을 UIManager로 위임
+        // 슬라이더 UI 초기 설정을 UIManager로 위임
         if (UIManager.Instance != null)
-  {
-            UIManager.Instance.SetConcentration(currentConcentration, maxConcentration);
+        {
+            // UpdateConcentrationUI를 사용하여 슬라이더와 피로도 깜빡임 상태를 일관적으로 설정
+            UpdateConcentrationUI();
         }
-    else
+        else
         {
             Debug.LogError("UIManager 인스턴스가 없습니다. Concentration UI를 설정할 수 없습니다.");
         }
 
         // pictures 초기화
         for (int i = 0; i < numPictures; i++)
-  {
-   pictures[i].isGot = false;
+        {
+            pictures[i].isGot = false;
             pictures[i].pictureObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.1f);
-    }
+        }
         isGameOver = false;
 
-  // 초기화 완료
+        // 초기화 완료
         Debug.Log("게임 초기화 완료!");
     }
 
@@ -256,6 +278,13 @@ public class GameManager : SingletonBehaviour<GameManager>
         Debug.Log("게임 오버: 집중력이 0이 되었습니다.");
         DialogueManager.Instance.StartDialogue("GameOver");
         isGameOver = true;
+
+        // 게임 오버 시 피로도 깜빡임 정리
+        if (UIManager.Instance != null && isTiredBlinking)
+        {
+            UIManager.Instance.StopTiredUIBlink();
+            isTiredBlinking = false;
+        }
     }
 
     public void GameReset()
@@ -292,46 +321,51 @@ public class GameManager : SingletonBehaviour<GameManager>
         DialogueManager.Instance.StartDialogue("endDialogue");
          
         isGameOver = true;
-      isPaused = false;
+        isPaused = false;
         SoundManager.Instance.BGMFadeOut();
         SoundManager.Instance.NoiseFadeOut();
         pictureRectTransform.DOAnchorPos(pictureStartTransform.position, moveDuration).SetEase(Ease.OutCirc);
         pictureRectTransform.DORotate(pictureStartTransform.rotation, moveDuration).SetEase(Ease.OutCirc);
         pictureRectTransform.DOScale(pictureStartTransform.scale, moveDuration).SetEase(Ease.OutCirc).OnComplete(() =>
- {
+        {
             for(int i = 0; i < numPictures; i++)
             {
-       pictures[i].isGot = false;
-  pictures[i].pictureObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
-         }
+                pictures[i].isGot = false;
+                pictures[i].pictureObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
+            }
 
             rightHandTransform.DOAnchorPos(rightHandStartTransform.position, 1).SetEase(Ease.OutCirc);
-     rightHandTransform.DORotate(rightHandStartTransform.rotation, 1);
+            rightHandTransform.DORotate(rightHandStartTransform.rotation, 1);
             rightHandTransform.DOScale(rightHandStartTransform.scale, 1);
 
-         if (UIManager.Instance != null)
-   {
-     if (isGameCleared)
-        {
-    UIManager.Instance.SetEndingUIActive(true);
-         Cursor.lockState = CursorLockMode.Confined;
-   Cursor.visible = true;
-           }
-     else
-         {
-   UIManager.Instance.FadeInTitleUI(onComplete: () =>
-      {
-    Cursor.lockState = CursorLockMode.Confined;
-    Cursor.visible = true;
-     //GameReset();
-           });
-     }
+            if (UIManager.Instance != null)
+            {
+                if (isGameCleared)
+                {
+                    UIManager.Instance.SetEndingUIActive(true);
+                    Cursor.lockState = CursorLockMode.Confined;
+                    Cursor.visible = true;
+                }
+                else
+                {
+                    // In-Game UI (Pause + ItemGet)을 먼저 페이드아웃 한 뒤 타이틀 UI를 페이드인합니다.
+                    // 이를 통해 화면 전환 시 딱 끊기는 대신 부드러운 페이드 아웃이 일어납니다.
+                    UIManager.Instance.FadeOutInGameUI(0.3f, () =>
+                    {
+                        UIManager.Instance.FadeInTitleUI(onComplete: () =>
+                        {
+                            Cursor.lockState = CursorLockMode.Confined;
+                            Cursor.visible = true;
+                            //GameReset();
+                        });
+                    });
+                }
             }
-     else
-       {
-        Cursor.lockState = CursorLockMode.Confined;
-       Cursor.visible = true;
-    }
+            else
+            {
+                Cursor.lockState = CursorLockMode.Confined;
+                Cursor.visible = true;
+            }
         });
     }
 
@@ -360,8 +394,8 @@ public class GameManager : SingletonBehaviour<GameManager>
         {
             if (!pictures[i].isGot)
             {
-              return;
-         }
+                return;
+            }
         }
 
         isGameCleared = true;
@@ -431,5 +465,9 @@ public class GameManager : SingletonBehaviour<GameManager>
     {
         currentConcentration += value;
         currentConcentration = Mathf.Min(maxConcentration, currentConcentration);
+
+        // UI 갱신 및 피로도 깜빡임 상태 반영
+        UpdateConcentrationUI();
     }
 }
+

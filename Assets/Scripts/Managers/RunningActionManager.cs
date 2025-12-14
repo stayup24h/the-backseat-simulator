@@ -433,7 +433,8 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
                 }
             }
         }
-   spawnedPrefabs.Clear();
+        spawnedPrefabs.Clear();
+        DialogueManager.Instance.StartDialogue(("FingerRunning"));
     }
 
     /// <summary>
