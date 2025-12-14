@@ -70,7 +70,6 @@ public class RecoveryPickup : MonoBehaviour
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb == null)
         {
-            Debug.LogWarning("[RecoveryPickup] 리지드바디가 없어서 생성합니다.", this);
             rb = gameObject.AddComponent<Rigidbody>();
             rb.isKinematic = true; // 물리 시뮬레이션 제외 (수동으로 이동)
             rb.useGravity = false;

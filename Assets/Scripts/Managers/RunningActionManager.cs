@@ -32,6 +32,11 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
     // Tween 핸들 저장 (중복 실행 제어용)
     private Sequence rightHandSeq;
     private Sequence leftHandSeq;
+    // 점프 시퀀스 및 점프 오브젝트 시퀀스 저장
+    private Sequence jumpSeq;
+    private Sequence jumpObjectSeq;
+    private Vector3 jumpObjectStartPosition;
+    private bool hasSavedJumpObjectStartPos = false;
 
     // Animator 파라미터명 상수
     private const string runParamName = "run";
@@ -95,13 +100,39 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
     {
         if (rightHandSeq != null)
         {
-            rightHandSeq.Kill(true);
+            rightHandSeq.Kill(false);
             rightHandSeq = null;
         }
         if (leftHandSeq != null)
         {
-            leftHandSeq.Kill(true);
+            leftHandSeq.Kill(false);
             leftHandSeq = null;
+        }
+        // Ensure jump-related sequences are also killed to avoid leaving objects mid-animation
+        if (jumpSeq != null)
+        {
+            jumpSeq.Kill(false);
+            jumpSeq = null;
+        }
+        if (jumpObjectSeq != null)
+        {
+            jumpObjectSeq.Kill(false);
+            jumpObjectSeq = null;
+        }
+    }
+
+    // Kill only jump-related sequences (used when ending while preserving hand tweens)
+    private void KillJumpSequences()
+    {
+        if (jumpSeq != null)
+        {
+            jumpSeq.Kill(false);
+            jumpSeq = null;
+        }
+        if (jumpObjectSeq != null)
+        {
+            jumpObjectSeq.Kill(false);
+            jumpObjectSeq = null;
         }
     }
 
@@ -133,7 +164,9 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
             }
         }
         spawnedPrefabs.Clear();
-
+        
+        cameraDirector?.FocusRunningAction();
+        
         // 초기화: 종료 플래그 리셋
         isEnding = false;
         pendingEnd = false;
@@ -151,45 +184,24 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
         leftHandTransform = leftHand;
         leftHandStartTransform = leftStart;
         leftHandTargetTransform = leftTarget;
-        
+
+
         // 왼손의 Animator 찾기 (자식 포함)
         if (leftHandTransform != null)
         {
             leftHandAnimator = leftHandTransform.GetComponentInChildren<Animator>();
             if (leftHandAnimator != null)
             {
-                // Animator 동작 보장 설정
                 try
                 {
-                    leftHandAnimator.cullingMode = UnityEngine.AnimatorCullingMode.AlwaysAnimate;
-                    leftHandAnimator.updateMode = UnityEngine.AnimatorUpdateMode.UnscaledTime;
+                    leftHandAnimator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+                    leftHandAnimator.updateMode = AnimatorUpdateMode.UnscaledTime;
                     leftHandAnimator.Rebind();
                     leftHandAnimator.Update(0f);
-                    Debug.Log("[RunningActionManager] leftHandAnimator culling/update 설정 및 Rebind 수행", this);
-
-                    // 할당된 컨트롤러와 클립 목록 출력(디버그)
-                    var controller = leftHandAnimator.runtimeAnimatorController;
-                    if (controller != null)
-                    {
-                        Debug.Log($"[RunningActionManager] Animator Controller: {controller.name}", this);
-                        foreach (var clip in controller.animationClips)
-                        {
-                            Debug.Log($"[RunningActionManager] Animator clip: {clip.name}", this);
-                        }
-                    }
                 }
-                catch (System.Exception ex)
-                {
-                    Debug.LogWarning($"[RunningActionManager] leftHandAnimator 초기화 중 예외: {ex.Message}", this);
-                }
+                catch (System.Exception) { }
 
-                // run 애니메이션 재생 (문자열 파라미터 사용)
                 leftHandAnimator.SetTrigger(runParamName);
-                Debug.Log("[RunningActionManager] 왼손 run 애니메이션 시작", this);
-            }
-            else
-            {
-                Debug.LogWarning("[RunningActionManager] leftHandAnimator를 찾지 못했습니다.", this);
             }
         }
 
@@ -258,15 +270,14 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
     {
         IsRunningAction = true;
 
+        // Ensure hand objects are active when running action starts
+
         // UI 활성화
         if (UIManager.Instance != null)
         {
             UIManager.Instance.SetRunningActionCanvasActive(true);
         }
-
-        // 카메라 포커스
-        cameraDirector?.FocusRunningAction();
-
+        
         // 게임 일시정지 해제
         if (GameManager.Instance != null)
         {
@@ -316,16 +327,14 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
             UIManager.Instance.SetRunningActionCanvasActive(false);
         }
 
-        // 기존 트윈 있으면 제거(종료 트윈 시작 전에 안전하게 정리)
-        KillAndClearSequences();
+        // 점프 시퀀스만 정리(왼손/오른손 핸드는 시퀀스로 자연스럽게 복귀시키기 위해 그대로 둡니다)
+        KillJumpSequences();
 
         // 왼손 애니메이션 정리
         if (leftHandAnimator != null)
         {
-            // 모든 애니메이션 상태 초기화
             leftHandAnimator.ResetTrigger(runParamName);
             leftHandAnimator.ResetTrigger(jumpParamName);
-            Debug.Log("[RunningActionManager] 왼손 애니메이션 상태 초기화", this);
         }
 
         // 왼손을 시작 위치로 이동 (시퀀스 사용)
@@ -348,11 +357,19 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
                             .Join(rightHandTransform.DOScale(rightHandTargetTransform.scale, handMoveDuration).SetEase(Ease.OutCirc))
                             .OnComplete(() =>
                             {
+                                // Ensure any jump tweens are killed and positions reset before finishing
+                                if (jumpSeq != null) { jumpSeq.Kill(false); jumpSeq = null; }
+                                if (jumpObjectSeq != null) { jumpObjectSeq.Kill(false); jumpObjectSeq = null; }
+                                // position restoration will be handled in FinishEndAction to avoid snapping during tween
                                 FinishEndAction();
                             });
                     }
                     else
                     {
+                        // Ensure any jump tweens are killed and positions reset before finishing
+                        if (jumpSeq != null) { jumpSeq.Kill(false); jumpSeq = null; }
+                        if (jumpObjectSeq != null) { jumpObjectSeq.Kill(false); jumpObjectSeq = null; }
+                        // position restoration will be handled in FinishEndAction to avoid snapping during tween
                         FinishEndAction();
                     }
                 });
@@ -368,11 +385,19 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
                     .Join(rightHandTransform.DOScale(rightHandTargetTransform.scale, handMoveDuration).SetEase(Ease.OutCirc))
                     .OnComplete(() =>
                     {
+                        // Ensure any jump tweens are killed and positions reset before finishing
+                        if (jumpSeq != null) { jumpSeq.Kill(false); jumpSeq = null; }
+                        if (jumpObjectSeq != null) { jumpObjectSeq.Kill(false); jumpObjectSeq = null; }
+                        // position restoration will be handled in FinishEndAction to avoid snapping during tween
                         FinishEndAction();
                     });
             }
             else
             {
+                // Ensure any jump tweens are killed and positions reset before finishing
+                if (jumpSeq != null) { jumpSeq.Kill(false); jumpSeq = null; }
+                if (jumpObjectSeq != null) { jumpObjectSeq.Kill(false); jumpObjectSeq = null; }
+                // position restoration will be handled in FinishEndAction to avoid snapping during tween
                 FinishEndAction();
             }
         }
@@ -401,6 +426,20 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
         // 점프 플래그 리셋
         isJumping = false;
 
+        // Ensure any jump sequences are killed and positions reset
+        if (jumpSeq != null) { jumpSeq.Kill(false); jumpSeq = null; }
+        if (jumpObjectSeq != null) { jumpObjectSeq.Kill(false); jumpObjectSeq = null; }
+        // Restore jump object position if we saved it earlier
+        if (jumpObject != null && hasSavedJumpObjectStartPos)
+        {
+            jumpObject.position = jumpObjectStartPosition;
+            hasSavedJumpObjectStartPos = false;
+        }
+
+        // Disable hand objects when running action finishes
+        if (leftHandTransform != null) leftHandTransform.gameObject.SetActive(false);
+        if (rightHandTransform != null) rightHandTransform.gameObject.SetActive(false);
+
         // 플레이어 마우스 잠금 해제
         playerCtrl?.UnlockMouseLook();
 
@@ -419,36 +458,23 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
     {
         if (!IsRunningAction || leftHandTransform == null) return;
 
-        // 이미 점프 중이면 무시
         if (isJumping) return;
 
-        // 점프 중 플래그 설정
         isJumping = true;
 
-        // 점프 효과음 재생 (SoundManager 사용)
         if (!string.IsNullOrEmpty(jumpSfxName) && SoundManager.Instance != null)
         {
-            Debug.Log($"[RunningActionManager] 점프 효과음 재생: {jumpSfxName}", this);
             SoundManager.Instance.PlaySFX(jumpSfxName);
         }
 
-        // 왼손 점프 애니메이션 재생
         if (leftHandAnimator != null)
         {
-            // 기록: 최근 점프 시간
             lastJumpTime = Time.time;
 
-            // 현재 상태 정보 로깅
-            var stateInfo = leftHandAnimator.GetCurrentAnimatorStateInfo(0);
-            Debug.Log($"[RunningActionManager] Animator current state hash={stateInfo.shortNameHash}, normalizedTime={stateInfo.normalizedTime}", this);
-
-            // run 트리거 리셋(안정화)
-            try { leftHandAnimator.ResetTrigger(runParamName); } catch {}
+            try { leftHandAnimator.ResetTrigger(runParamName); } catch { }
 
             leftHandAnimator.SetTrigger(jumpParamName);
-            Debug.Log("[RunningActionManager] 왼손 jump 트리거 설정", this);
 
-            // 즉시 CrossFade로 강제 전환 시도
             try
             {
                 int jumpStateHash = GetPreferredStateHash(leftHandAnimator, jumpStateNames);
@@ -456,87 +482,65 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
                 {
                     leftHandAnimator.CrossFade(jumpStateHash, 0f, 0, 0f);
                     leftHandAnimator.Update(0f);
-                    Debug.Log("[RunningActionManager] 왼손 CrossFade로 jump 즉시 전환 시도", this);
                 }
             }
-            catch (System.Exception ex)
-            {
-                Debug.LogWarning($"[RunningActionManager] CrossFade 시도 실패: {ex.Message}", this);
-            }
+            catch (System.Exception) { }
 
-            // 트리거 기반 전환이 지연될 수 있으므로 가능한 상태명을 즉시 재생 시도
             TryForcePlayAnimatorState(leftHandAnimator, jumpStateNames);
 
-            // 재발동 방지: 트리거 즉시 리셋
-            try { leftHandAnimator.ResetTrigger(jumpParamName); } catch {}
-        }
-        else
-        {
-            Debug.LogWarning("[RunningActionManager] leftHandAnimator가 할당되지 않았습니다.", this);
+            try { leftHandAnimator.ResetTrigger(jumpParamName); } catch { }
         }
 
-        // 현재 위치 저장
         Vector3 currentPos = leftHandTransform.anchoredPosition;
 
-        // 왼손을 위로 올리는 시퀀스
-        Sequence jumpSeq = DOTween.Sequence();
+        // store jump sequence to allow safe cancellation if End is called mid-jump
+        jumpSeq = DOTween.Sequence();
         jumpSeq
-            .Append(leftHandTransform.DOAnchorPosY(currentPos.y + jumpHeight, jumpDuration).SetEase(Ease.OutQuad))
-            .Append(leftHandTransform.DOAnchorPosY(currentPos.y, fallDuration).SetEase(Ease.InQuad))
-            .OnComplete(() =>
-            {
-                // 점프 완료 - run 애니메이션으로 복귀
-                if (leftHandAnimator != null)
-                {
-                    // run 트리거 설정
-                    leftHandAnimator.SetTrigger(runParamName);
-                    Debug.Log("[RunningActionManager] 왼손 run 트리거 설정", this);
+             .Append(leftHandTransform.DOAnchorPosY(currentPos.y + jumpHeight, jumpDuration).SetEase(Ease.OutQuad))
+             .Append(leftHandTransform.DOAnchorPosY(currentPos.y, fallDuration).SetEase(Ease.InQuad))
+             .OnComplete(() =>
+             {
+                 if (leftHandAnimator != null)
+                 {
+                     leftHandAnimator.SetTrigger(runParamName);
 
-                    // jump 트리거 리셋하여 자동 재발동 방지
-                    try { leftHandAnimator.ResetTrigger(jumpParamName); } catch {}
+                     try { leftHandAnimator.ResetTrigger(jumpParamName); } catch { }
 
-                    // 즉시 run 상태로 복귀 시도
-                    try
-                    {
-                        int runStateHash = GetPreferredStateHash(leftHandAnimator, runStateNames);
-                        if (runStateHash != 0)
-                        {
-                            leftHandAnimator.CrossFade(runStateHash, 0f, 0, 0f);
-                            leftHandAnimator.Update(0f);
-                            Debug.Log("[RunningActionManager] 왼손 CrossFade로 run 즉시 전환 시도", this);
-                        }
-                    }
-                    catch (System.Exception ex)
-                    {
-                        Debug.LogWarning($"[RunningActionManager] CrossFade(run) 시도 실패: {ex.Message}", this);
-                    }
-                    TryForcePlayAnimatorState(leftHandAnimator, runStateNames);
+                     try
+                     {
+                         int runStateHash = GetPreferredStateHash(leftHandAnimator, runStateNames);
+                         if (runStateHash != 0)
+                         {
+                             leftHandAnimator.CrossFade(runStateHash, 0f, 0, 0f);
+                             leftHandAnimator.Update(0f);
+                         }
+                     }
+                     catch (System.Exception) { }
+                     TryForcePlayAnimatorState(leftHandAnimator, runStateNames);
 
-                    // 트리거 즉시 리셋
-                    try { leftHandAnimator.ResetTrigger(runParamName); } catch {}
-                }
-                // 점프 완료 - 플래그 리셋
+                     try { leftHandAnimator.ResetTrigger(runParamName); } catch { }
+                 }
                 isJumping = false;
-            });
+                if (jumpSeq != null) { jumpSeq.Kill(false); jumpSeq = null; }
+             });
 
-        // 점프 오브젝트도 함께 움직이기
-        if (jumpObject != null)
-        {
-            Vector3 jumpObjectCurrentPos = jumpObject.position;
-            Vector3 jumpObjectTargetPos = new Vector3(
-                jumpObjectCurrentPos.x,
-                jumpObjectCurrentPos.y + jumpObjectHeight,
-                jumpObjectCurrentPos.z
-            );
+         if (jumpObject != null)
+         {
+            // store start position so we can restore if interrupted
+            jumpObjectStartPosition = jumpObject.position;
+            hasSavedJumpObjectStartPos = true;
+            Vector3 jumpObjectCurrentPos = jumpObjectStartPosition;
+            Vector3 jumpObjectTargetPos = new Vector3(jumpObjectCurrentPos.x, jumpObjectCurrentPos.y + jumpObjectHeight, jumpObjectCurrentPos.z);
 
-            Sequence jumpObjectSeq = DOTween.Sequence();
+            jumpObjectSeq = DOTween.Sequence();
             jumpObjectSeq
                 .Append(jumpObject.DOMove(jumpObjectTargetPos, jumpDuration).SetEase(Ease.OutQuad))
-                .Append(jumpObject.DOMove(jumpObjectCurrentPos, fallDuration).SetEase(Ease.InQuad));
-        }
+                .Append(jumpObject.DOMove(jumpObjectCurrentPos, fallDuration).SetEase(Ease.InQuad))
+                .OnComplete(() => { if (jumpObjectSeq != null) { jumpObjectSeq.Kill(false); jumpObjectSeq = null; } });
+         }
         else
         {
-            Debug.LogWarning("[RunningActionManager] Jump Object가 할당되지 않았습니다.", this);
+            // no jump object
         }
     }
 
@@ -548,78 +552,11 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
     {
         if (animator == null) return;
 
-        // Ensure animator is enabled and bindings are up-to-date
         if (!animator.enabled) animator.enabled = true;
         animator.Update(0f);
 
         int layers = Mathf.Max(1, animator.layerCount);
-
-        // 짧은 시간 내(최근 jump가 발생한 경우) jump 후보 무시
         bool suppressRecentJump = (Time.time - lastJumpTime) < jumpSuppressDuration;
-
-        // 1) 모든 레이어에서 현재/다음 상태를 확인하고 Play/CrossFade 시도
-        for (int layer = 0; layer < layers; layer++)
-        {
-            AnimatorStateInfo current = animator.GetCurrentAnimatorStateInfo(layer);
-            AnimatorStateInfo next = animator.IsInTransition(layer) ? animator.GetNextAnimatorStateInfo(layer) : new AnimatorStateInfo();
-
-            foreach (var stateName in candidateStateNames)
-            {
-                if (string.IsNullOrEmpty(stateName)) continue;
-
-                // 최근 점프 억제: stateName이 jump 관련이면 스킵
-                if (suppressRecentJump && stateName.ToLower().Contains("jump"))
-                {
-                    Debug.Log($"[RunningActionManager] TryForcePlayAnimatorState: suppressed recent jump candidate '{stateName}'", this);
-                    continue;
-                }
-
-                int hash = Animator.StringToHash(stateName);
-
-                // 이미 현재 상태거나 다음(전환 중) 상태라면 건너뜀
-                if (current.shortNameHash == hash)
-                {
-                    Debug.Log($"[RunningActionManager] TryForcePlayAnimatorState: already in state '{stateName}' on layer {layer}", this);
-                    return; // 이미 목표 상태이므로 더 이상 시도하지 않음
-                }
-                if (animator.IsInTransition(layer) && next.shortNameHash == hash)
-                {
-                    Debug.Log($"[RunningActionManager] TryForcePlayAnimatorState: next transition targets '{stateName}' on layer {layer}", this);
-                    return; // 전환 중이면 기다림
-                }
-
-                // HasState 체크로 상태 존재 여부 확인
-                bool has = animator.HasState(layer, hash);
-                Debug.Log($"[RunningActionManager] TryForcePlayAnimatorState: layer={layer} checking '{stateName}' (hash={hash}) hasState={has}", this);
-                if (has)
-                {
-                    try
-                    {
-                        animator.Play(hash, layer, 0f);
-                        animator.Update(0f);
-                        animator.speed = 1f;
-                        Debug.Log($"[RunningActionManager] Animator 즉시 상태 재생: {stateName} on layer {layer}", this);
-                        return;
-                    }
-                    catch (System.Exception ex)
-                    {
-                        Debug.LogWarning($"[RunningActionManager] Animator Play failed for {stateName} on layer {layer}: {ex.Message}", this);
-                    }
-                }
-            }
-        }
-
-        // 2) HasState로 찾지 못했으면 Rebind + Play/CrossFade fallback 시도
-        try
-        {
-            animator.Rebind();
-            animator.Update(0f);
-            Debug.Log("[RunningActionManager] Animator Rebind performed", this);
-        }
-        catch (System.Exception ex)
-        {
-            Debug.LogWarning($"[RunningActionManager] Animator Rebind failed: {ex.Message}", this);
-        }
 
         for (int layer = 0; layer < layers; layer++)
         {
@@ -634,7 +571,50 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
 
                 int hash = Animator.StringToHash(stateName);
 
-                // 이미 현재 상태거나 전환 중이면 건너뜀
+                if (current.shortNameHash == hash) return;
+                if (animator.IsInTransition(layer) && next.shortNameHash == hash) return;
+
+                bool has = false;
+                try
+                {
+                    has = animator.HasState(layer, hash);
+                }
+                catch (System.Exception) { }
+
+                if (has)
+                {
+                    try
+                    {
+                        animator.Play(hash, layer, 0f);
+                        animator.Update(0f);
+                        animator.speed = 1f;
+                        return;
+                    }
+                    catch (System.Exception) { }
+                }
+            }
+        }
+
+        try
+        {
+            animator.Rebind();
+            animator.Update(0f);
+        }
+        catch (System.Exception) { }
+
+        for (int layer = 0; layer < layers; layer++)
+        {
+            AnimatorStateInfo current = animator.GetCurrentAnimatorStateInfo(layer);
+            AnimatorStateInfo next = animator.IsInTransition(layer) ? animator.GetNextAnimatorStateInfo(layer) : new AnimatorStateInfo();
+
+            foreach (var stateName in candidateStateNames)
+            {
+                if (string.IsNullOrEmpty(stateName)) continue;
+
+                if (suppressRecentJump && stateName.ToLower().Contains("jump")) continue;
+
+                int hash = Animator.StringToHash(stateName);
+
                 if (current.shortNameHash == hash || (animator.IsInTransition(layer) && next.shortNameHash == hash))
                 {
                     continue;
@@ -645,30 +625,51 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
                     animator.Play(hash, layer, 0f);
                     animator.Update(0f);
                     animator.speed = 1f;
-                    Debug.Log($"[RunningActionManager] Animator Play fallback succeeded: {stateName} on layer {layer}", this);
                     return;
                 }
-                catch (System.Exception ex)
-                {
-                    Debug.LogWarning($"[RunningActionManager] Animator Play fallback failed for {stateName} on layer {layer}: {ex.Message}", this);
-                }
+                catch (System.Exception) { }
 
                 try
                 {
                     animator.CrossFade(hash, 0f, layer, 0f);
                     animator.Update(0f);
                     animator.speed = 1f;
-                    Debug.Log($"[RunningActionManager] Animator CrossFade fallback succeeded: {stateName} on layer {layer}", this);
                     return;
                 }
-                catch (System.Exception ex)
-                {
-                    Debug.LogWarning($"[RunningActionManager] Animator CrossFade fallback failed for {stateName} on layer {layer}: {ex.Message}", this);
-                }
+                catch (System.Exception) { }
             }
         }
 
-        Debug.Log("[RunningActionManager] TryForcePlayAnimatorState: 후보 상태를 찾지 못했습니다.", this);
+        try
+        {
+            var controller = animator.runtimeAnimatorController;
+            if (controller != null)
+            {
+                foreach (var clip in controller.animationClips)
+                {
+                    foreach (var candidate in candidateStateNames)
+                    {
+                        if (string.IsNullOrEmpty(candidate)) continue;
+                        if (clip.name.Equals(candidate, System.StringComparison.OrdinalIgnoreCase))
+                        {
+                            int clipHash = Animator.StringToHash(clip.name);
+                            for (int layer = 0; layer < layers; layer++)
+                            {
+                                try
+                                {
+                                    animator.CrossFade(clipHash, 0f, layer, 0f);
+                                    animator.Update(0f);
+                                    animator.speed = 1f;
+                                    return;
+                                }
+                                catch (System.Exception) { }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (System.Exception) { }
     }
 
     private int GetPreferredStateHash(Animator animator, string[] candidateStateNames)
@@ -757,7 +758,5 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
         
         // 생성된 프리팹을 리스트에 추가
         spawnedPrefabs.Add(spawnedObj);
-
-        Debug.Log($"Prefab spawned at {spawnPos} (Offset {(useSecondLocation ? 2 : 1)})");
     }
 }

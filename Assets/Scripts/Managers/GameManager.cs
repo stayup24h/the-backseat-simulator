@@ -389,8 +389,7 @@ public class GameManager : SingletonBehaviour<GameManager>
             Debug.LogWarning("RunningActionManager 인스턴스가 없습니다. RunningAction을 시작할 수 없습니다.");
             return;
         }
-
-        // RunningActionManager로 위임
+        
         RunningActionManager.Instance.StartRunningAction(cameraDirector, playerCtrl,
             rightHandTransform, rightHandStartTransform, rightHandTargetTransform,
             leftHandTransform, leftHandStartTransform, leftHandTargetTransform);

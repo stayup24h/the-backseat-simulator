@@ -124,7 +124,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5ce8247b0f046a48c3ce15d76417616, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RecoveryPickup
-  healAmount: 3
+  healAmount: 5
   destroyOnPickup: 1
   reuseCooldown: 0
   playerTag: Player
