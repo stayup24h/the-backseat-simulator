@@ -26,7 +26,7 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
     private Animator leftHandAnimator; // 왼손 애니메이터 추가
 
     // 트윈 지속시간들 (기본값은 기존 GameManager와 동일하게 설정)
-    private float initialHandTweenDuration = 0.5f;
+    private float initialHandTweenDuration = 1f;
     private float handMoveDuration = 1f;
 
     // Tween 핸들 저장 (중복 실행 제어용)
@@ -275,27 +275,28 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
         // UI 활성화
         if (UIManager.Instance != null)
         {
-            UIManager.Instance.SetRunningActionCanvasActive(true);
+         UIManager.Instance.SetRunningActionCanvasActive(true);
+       UIManager.Instance.FadeOutInGameUI();
         }
         
-        // 게임 일시정지 해제
+   // 게임 일시정지 해제
         if (GameManager.Instance != null)
-        {
+      {
             GameManager.Instance.isPaused = false;
         }
 
-        // 시작 완료 플래그 해제
+// 시작 완료 플래그 해제
         isStarting = false;
 
         // 만약 Start 중에 End 호출 요청이 있었으면 지금 처리
         if (pendingEnd)
         {
             pendingEnd = false;
-            EndRunningAction();
+      EndRunningAction();
         }
 
         // Prefab 생성 시작
-        StartSpawning();
+  StartSpawning();
     }
 
     public void EndRunningAction()
@@ -310,140 +311,129 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
         // 이미 종료 중이면 무시
         if (isEnding) return;
 
-        if (!IsRunningAction) return;
+   if (!IsRunningAction) return;
 
         // 종료 시작 플래그 설정
-        isEnding = true;
+     isEnding = true;
+
+        // Prefab 생성 중지 및 즉시 FadeOut
+        StopSpawning();
+     FadeOutAndDestroyPrefabs();
 
         // 일시정지
         if (GameManager.Instance != null)
-        {
+  {
             GameManager.Instance.isPaused = true;
         }
 
-        // UI 비활성화
+ // UI 비활성화
         if (UIManager.Instance != null)
-        {
-            UIManager.Instance.SetRunningActionCanvasActive(false);
+{
+         UIManager.Instance.SetRunningActionCanvasActive(false);
         }
 
-        // 점프 시퀀스만 정리(왼손/오른손 핸드는 시퀀스로 자연스럽게 복귀시키기 위해 그대로 둡니다)
-        KillJumpSequences();
+  // 점프 시퀀스만 정리(왼손/오른손 핸드는 시퀀스로 자연스럽게 복귀시키기 위해 그대로 둡니다)
+  KillJumpSequences();
 
-        // 왼손 애니메이션 정리
-        if (leftHandAnimator != null)
+  // 왼손 애니메이션 정리
+  if (leftHandAnimator != null)
         {
-            leftHandAnimator.ResetTrigger(runParamName);
-            leftHandAnimator.ResetTrigger(jumpParamName);
+        leftHandAnimator.ResetTrigger(runParamName);
+     leftHandAnimator.ResetTrigger(jumpParamName);
         }
 
         // 왼손을 시작 위치로 이동 (시퀀스 사용)
-        if (leftHandTransform != null)
-        {
-            leftHandSeq = DOTween.Sequence();
+   if (leftHandTransform != null)
+     {
+     leftHandSeq = DOTween.Sequence();
             leftHandSeq
-                .Append(leftHandTransform.DOAnchorPos(leftHandStartTransform.position, initialHandTweenDuration).SetEase(Ease.OutCirc))
-                .Join(leftHandTransform.DORotate(leftHandStartTransform.rotation, initialHandTweenDuration).SetEase(Ease.OutCirc))
-                .Join(leftHandTransform.DOScale(leftHandStartTransform.scale, initialHandTweenDuration).SetEase(Ease.OutCirc))
-                .OnComplete(() =>
-                {
-                    // 오른손을 타겟으로 복귀
-                    if (rightHandTransform != null)
-                    {
-                        rightHandSeq = DOTween.Sequence();
-                        rightHandSeq
-                            .Append(rightHandTransform.DOAnchorPos(rightHandTargetTransform.position, handMoveDuration).SetEase(Ease.OutCirc))
-                            .Join(rightHandTransform.DORotate(rightHandTargetTransform.rotation, handMoveDuration).SetEase(Ease.OutCirc))
-                            .Join(rightHandTransform.DOScale(rightHandTargetTransform.scale, handMoveDuration).SetEase(Ease.OutCirc))
-                            .OnComplete(() =>
-                            {
-                                // Ensure any jump tweens are killed and positions reset before finishing
-                                if (jumpSeq != null) { jumpSeq.Kill(false); jumpSeq = null; }
-                                if (jumpObjectSeq != null) { jumpObjectSeq.Kill(false); jumpObjectSeq = null; }
-                                // position restoration will be handled in FinishEndAction to avoid snapping during tween
-                                FinishEndAction();
-                            });
-                    }
-                    else
-                    {
-                        // Ensure any jump tweens are killed and positions reset before finishing
-                        if (jumpSeq != null) { jumpSeq.Kill(false); jumpSeq = null; }
-                        if (jumpObjectSeq != null) { jumpObjectSeq.Kill(false); jumpObjectSeq = null; }
-                        // position restoration will be handled in FinishEndAction to avoid snapping during tween
-                        FinishEndAction();
-                    }
-                });
-        }
+ .Append(leftHandTransform.DOAnchorPos(leftHandStartTransform.position, initialHandTweenDuration).SetEase(Ease.OutCirc))
+.Join(leftHandTransform.DORotate(leftHandStartTransform.rotation, initialHandTweenDuration).SetEase(Ease.OutCirc))
+      .Join(leftHandTransform.DOScale(leftHandStartTransform.scale, initialHandTweenDuration).SetEase(Ease.OutCirc))
+        .OnComplete(() =>
+     {
+           // 오른손을 타겟으로 복귀
+    if (rightHandTransform != null)
+ {
+   rightHandSeq = DOTween.Sequence();
+                rightHandSeq
+    .Append(rightHandTransform.DOAnchorPos(rightHandTargetTransform.position, handMoveDuration).SetEase(Ease.OutCirc))
+    .Join(rightHandTransform.DORotate(rightHandTargetTransform.rotation, handMoveDuration).SetEase(Ease.OutCirc))
+            .Join(rightHandTransform.DOScale(rightHandTargetTransform.scale, handMoveDuration).SetEase(Ease.OutCirc))
+        .OnComplete(() =>
+     {
+       // Ensure any jump tweens are killed and positions reset before finishing
+                 if (jumpSeq != null) { jumpSeq.Kill(false); jumpSeq = null; }
+            if (jumpObjectSeq != null) { jumpObjectSeq.Kill(false); jumpObjectSeq = null; }
+          // position restoration will be handled in FinishEndAction to avoid snapping during tween
+        FinishEndAction();
+   });
+            }
         else
         {
-            if (rightHandTransform != null)
+         // Ensure any jump tweens are killed and positions reset before finishing
+    if (jumpSeq != null) { jumpSeq.Kill(false); jumpSeq = null; }
+       if (jumpObjectSeq != null) { jumpObjectSeq.Kill(false); jumpObjectSeq = null; }
+  // position restoration will be handled in FinishEndAction to avoid snapping during tween
+     FinishEndAction();
+       }
+     });
+        }
+   else
+        {
+     if (rightHandTransform != null)
             {
-                rightHandSeq = DOTween.Sequence();
-                rightHandSeq
-                    .Append(rightHandTransform.DOAnchorPos(rightHandTargetTransform.position, handMoveDuration).SetEase(Ease.OutCirc))
-                    .Join(rightHandTransform.DORotate(rightHandTargetTransform.rotation, handMoveDuration).SetEase(Ease.OutCirc))
-                    .Join(rightHandTransform.DOScale(rightHandTargetTransform.scale, handMoveDuration).SetEase(Ease.OutCirc))
-                    .OnComplete(() =>
-                    {
-                        // Ensure any jump tweens are killed and positions reset before finishing
-                        if (jumpSeq != null) { jumpSeq.Kill(false); jumpSeq = null; }
-                        if (jumpObjectSeq != null) { jumpObjectSeq.Kill(false); jumpObjectSeq = null; }
-                        // position restoration will be handled in FinishEndAction to avoid snapping during tween
-                        FinishEndAction();
-                    });
+      rightHandSeq = DOTween.Sequence();
+         rightHandSeq
+   .Append(rightHandTransform.DOAnchorPos(rightHandTargetTransform.position, handMoveDuration).SetEase(Ease.OutCirc))
+      .Join(rightHandTransform.DORotate(rightHandTargetTransform.rotation, handMoveDuration).SetEase(Ease.OutCirc))
+              .Join(rightHandTransform.DOScale(rightHandTargetTransform.scale, handMoveDuration).SetEase(Ease.OutCirc))
+  .OnComplete(() =>
+             {
+    // Ensure any jump tweens are killed and positions reset before finishing
+        if (jumpSeq != null) { jumpSeq.Kill(false); jumpSeq = null; }
+      if (jumpObjectSeq != null) { jumpObjectSeq.Kill(false); jumpObjectSeq = null; }
+            // position restoration will be handled in FinishEndAction to avoid snapping during tween
+ FinishEndAction();
+  });
             }
             else
             {
-                // Ensure any jump tweens are killed and positions reset before finishing
-                if (jumpSeq != null) { jumpSeq.Kill(false); jumpSeq = null; }
-                if (jumpObjectSeq != null) { jumpObjectSeq.Kill(false); jumpObjectSeq = null; }
-                // position restoration will be handled in FinishEndAction to avoid snapping during tween
-                FinishEndAction();
-            }
-        }
+          // Ensure any jump tweens are killed and positions reset before finishing
+         if (jumpSeq != null) { jumpSeq.Kill(false); jumpSeq = null; }
+     if (jumpObjectSeq != null) { jumpObjectSeq.Kill(false); jumpObjectSeq = null; }
+          // position restoration will be handled in FinishEndAction to avoid snapping during tween
+        FinishEndAction();
+    }
+    }
     }
 
-    private void FinishEndAction()
+    /// <summary>
+    /// 생성된 모든 프리팹을 FadeOut 애니메이션과 함께 제거합니다.
+    /// </summary>
+    private void FadeOutAndDestroyPrefabs()
     {
-        KillAndClearSequences();
-
-        // Prefab 생성 중지
-        StopSpawning();
-
-        // 모든 스포된 프리팹 제거
         foreach (GameObject prefab in spawnedPrefabs)
         {
-            if (prefab != null)
-            {
-                Destroy(prefab);
+         if (prefab != null)
+     {
+            CanvasGroup canvasGroup = prefab.GetComponent<CanvasGroup>();
+ if (canvasGroup != null)
+     {
+        // CanvasGroup이 있으면 FadeOut 애니메이션
+          canvasGroup.DOFade(0f, 0.3f).OnComplete(() =>
+       {
+     Destroy(prefab);
+     });
+     }
+    else
+     {
+    // CanvasGroup이 없으면 바로 제거
+             Destroy(prefab);
+                }
             }
         }
-        spawnedPrefabs.Clear();
-        
-        IsRunningAction = false;
-        // 종료 플래그 리셋
-        isEnding = false;
-        // 점프 플래그 리셋
-        isJumping = false;
-
-        // Ensure any jump sequences are killed and positions reset
-        if (jumpSeq != null) { jumpSeq.Kill(false); jumpSeq = null; }
-        if (jumpObjectSeq != null) { jumpObjectSeq.Kill(false); jumpObjectSeq = null; }
-        // Restore jump object position if we saved it earlier
-        if (jumpObject != null && hasSavedJumpObjectStartPos)
-        {
-            jumpObject.position = jumpObjectStartPosition;
-            hasSavedJumpObjectStartPos = false;
-        }
-
-        // 플레이어 마우스 잠금 해제
-        playerCtrl?.UnlockMouseLook();
-
-        // 일시정지 해제
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.isPaused = false;
-        }
+   spawnedPrefabs.Clear();
     }
 
     /// <summary>
@@ -668,6 +658,18 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
         catch (System.Exception) { }
     }
 
+    private int GetPreferredStateHash(Animator animator, int candidateStateHash)
+    {
+        if (animator == null || animator.layerCount == 0) return 0;
+        int layers = Mathf.Max(1, animator.layerCount);
+        for (int layer = 0; layer < layers; layer++)
+        {
+            if (animator.HasState(layer, candidateStateHash)) return candidateStateHash;
+        }
+        // fallback: return 0 so CrossFade/Play will not attempt to switch to a non-existing state
+        return 0;
+    }
+
     private int GetPreferredStateHash(Animator animator, string[] candidateStateNames)
     {
         if (animator == null || candidateStateNames == null || candidateStateNames.Length == 0) return 0;
@@ -755,4 +757,42 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
         // 생성된 프리팹을 리스트에 추가
         spawnedPrefabs.Add(spawnedObj);
     }
+
+    private void FinishEndAction()
+    {
+   KillAndClearSequences();
+
+        // Prefab 생성 중지는 이미 EndRunningAction()에서 처리됨
+        
+   IsRunningAction = false;
+        // 종료 플래그 리셋
+        isEnding = false;
+   // 점프 플래그 리셋
+     isJumping = false;
+
+  // Ensure any jump sequences are killed and positions reset
+        if (jumpSeq != null) { jumpSeq.Kill(false); jumpSeq = null; }
+        if (jumpObjectSeq != null) { jumpObjectSeq.Kill(false); jumpObjectSeq = null; }
+  // Restore jump object position if we saved it earlier
+    if (jumpObject != null && hasSavedJumpObjectStartPos)
+        {
+         jumpObject.position = jumpObjectStartPosition;
+            hasSavedJumpObjectStartPos = false;
+        }
+
+ // 플레이어 마우스 잠금 해제
+        playerCtrl?.UnlockMouseLook();
+
+      // 일시정지 해제
+    if (GameManager.Instance != null)
+      {
+          GameManager.Instance.isPaused = false;
+   }
+
+   // In Game UI FadeIn
+   if (UIManager.Instance != null)
+        {
+UIManager.Instance.FadeInInGameUI();
+        }
+   }
 }

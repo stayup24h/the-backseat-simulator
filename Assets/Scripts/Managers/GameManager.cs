@@ -128,11 +128,12 @@ public class GameManager : SingletonBehaviour<GameManager>
     public void GameStart()
     {
         isPaused = true;
-        // UIManager에 타이틀 페이드와 인게임 UI 활성화를 위임
+        // UIManager에 타이틀 페이드와 인게임 UI 활성을 위임
         if (UIManager.Instance != null)
         {
             UIManager.Instance.FadeOutTitleUI();
-            UIManager.Instance.SetInGameUIActive(true);
+            UIManager.Instance.SetPauseUIActive(true);
+            UIManager.Instance.SetItemGetUIActive(true);
         }
 
         MovePictureToTarget(() =>
@@ -284,8 +285,9 @@ public class GameManager : SingletonBehaviour<GameManager>
         if (UIManager.Instance != null)
         {
             UIManager.Instance.SetPausePopupActive(false);
-            UIManager.Instance.SetInGameUIActive(true);
-     }
+            UIManager.Instance.SetPauseUIActive(true);
+            UIManager.Instance.SetItemGetUIActive(true);
+        }
         
         DialogueManager.Instance.StartDialogue("endDialogue");
          

@@ -1968,7 +1968,8 @@ MonoBehaviour:
   concentrationSlider: {fileID: 2071298516}
   titleUICanvasGroup: {fileID: 1203062389}
   runnigActionCanvasGroup: {fileID: 1672839221}
-  inGameUI: {fileID: 2081057980}
+  pauseUI: {fileID: 1345566359}
+  itemGetUI: {fileID: 692680621}
   endingUICanvasGroup: {fileID: 1714342505}
   pausePopup: {fileID: 171360849}
   itemGetPopup: {fileID: 921958215}
@@ -3211,7 +3212,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 692680619}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -5535,7 +5536,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1345566355}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -6186,7 +6187,6 @@ RectTransform:
   - {fileID: 921958216}
   - {fileID: 171360850}
   - {fileID: 1966000553}
-  - {fileID: 2071298515}
   - {fileID: 2081057979}
   - {fileID: 1672839220}
   m_Father: {fileID: 0}
@@ -7770,11 +7770,11 @@ RectTransform:
   - {fileID: 1418533916}
   - {fileID: 1081743810}
   - {fileID: 239940088}
-  m_Father: {fileID: 1508264503}
+  m_Father: {fileID: 2081057979}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 155, y: 43}
+  m_AnchoredPosition: {x: -755, y: -447}
   m_SizeDelta: {x: 243.01001, y: 47.631836}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2071298516
@@ -7836,7 +7836,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2071298514}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
@@ -7958,7 +7958,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2081057979
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7971,6 +7971,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2071298515}
   - {fileID: 1345566356}
   - {fileID: 692680620}
   m_Father: {fileID: 1508264503}

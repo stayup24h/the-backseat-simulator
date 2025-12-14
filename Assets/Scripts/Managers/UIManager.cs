@@ -1,4 +1,4 @@
-ï»¿using UnityEngine;
+using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using TMPro;
@@ -11,16 +11,17 @@ public class UIManager : SingletonBehaviour<UIManager>
     public Slider concentrationSlider;
     public CanvasGroup titleUICanvasGroup;
     public CanvasGroup runnigActionCanvasGroup;
-    public CanvasGroup inGameUI;
+    public CanvasGroup pauseUI;
+    public CanvasGroup itemGetUI;
     public CanvasGroup endingUICanvasGroup;
     public GameObject pausePopup;
     public GameObject itemGetPopup;
     public TMP_Text itemDescriptionText;
-    public CanvasGroup tiredUICanvasGroup; // Tired UI ì¶”ê°€
+    public CanvasGroup tiredUICanvasGroup; // Tired UI Ãß°¡
 
     public bool IsItemPopupActive { get; private set; }
     
-    private Sequence tiredBlinkSequence; // Tired UI ê¹œë°•ì„ ì‹œí€€ìŠ¤
+    private Sequence tiredBlinkSequence; // Tired UI ±ô¹ÚÀÓ ½ÃÄö½º
 
     public void SetConcentration(float current, float max)
     {
@@ -33,58 +34,178 @@ public class UIManager : SingletonBehaviour<UIManager>
     {
         if (titleUICanvasGroup == null)
         {
-            onComplete?.Invoke();
-            return;
+    onComplete?.Invoke();
+        return;
         }
 
         titleUICanvasGroup.DOFade(0f, duration).OnComplete(() =>
         {
-            titleUICanvasGroup.gameObject.SetActive(false);
+titleUICanvasGroup.gameObject.SetActive(false);
             onComplete?.Invoke();
-        });
+     });
     }
 
     public void FadeInTitleUI(float duration = 1f, Action onComplete = null)
     {
         if (titleUICanvasGroup == null)
-        {
-            onComplete?.Invoke();
-            return;
+     {
+      onComplete?.Invoke();
+  return;
         }
 
         titleUICanvasGroup.gameObject.SetActive(true);
         titleUICanvasGroup.DOFade(1f, duration).OnComplete(() => onComplete?.Invoke());
     }
 
-    public void SetInGameUIActive(bool active)
+    public void SetPauseUIActive(bool active)
     {
-        if (inGameUI == null) return;
-        inGameUI.gameObject.SetActive(active);
+        if (pauseUI == null) return;
+        
+        if (active)
+        {
+            pauseUI.gameObject.SetActive(true);
+            pauseUI.alpha = 0f;
+            pauseUI.DOFade(1f, 0.3f);
+        }
+        else
+        {
+  pauseUI.DOFade(0f, 0.3f).OnComplete(() =>
+     {
+     pauseUI.gameObject.SetActive(false);
+            });
+        }
+    }
+
+    public void SetItemGetUIActive(bool active)
+    {
+        if (itemGetUI == null) return;
+        
+        if (active)
+        {
+        itemGetUI.gameObject.SetActive(true);
+            itemGetUI.alpha = 0f;
+      itemGetUI.DOFade(1f, 0.3f);
+        }
+        else
+        {
+    itemGetUI.DOFade(0f, 0.3f).OnComplete(() =>
+     {
+       itemGetUI.gameObject.SetActive(false);
+            });
+        }
+    }
+
+    /// <summary>
+    /// In Game UI (Pause UI + Item Get UI)¸¦ FadeOutÇÕ´Ï´Ù.
+    /// </summary>
+    public void FadeOutInGameUI(float duration = 0.5f, Action onComplete = null)
+    {
+        int completedCount = 0;
+        int totalAnimations = 0;
+
+        // Pause UI FadeOut
+        if (pauseUI != null)
+        {
+        totalAnimations++;
+            pauseUI.DOFade(0f, duration).OnComplete(() =>
+            {
+     completedCount++;
+      if (completedCount == totalAnimations)
+   {
+  onComplete?.Invoke();
+     }
+        });
+        }
+
+        // Item Get UI FadeOut
+        if (itemGetUI != null)
+        {
+      totalAnimations++;
+ itemGetUI.DOFade(0f, duration).OnComplete(() =>
+  {
+  completedCount++;
+      if (completedCount == totalAnimations)
+ {
+            onComplete?.Invoke();
+    }
+         });
+        }
+
+        // µÑ ´Ù nullÀÌ¸é Áï½Ã Äİ¹é È£Ãâ
+        if (totalAnimations == 0)
+        {
+         onComplete?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// In Game UI (Pause UI + Item Get UI)¸¦ FadeInÇÕ´Ï´Ù.
+    /// </summary>
+    public void FadeInInGameUI(float duration = 0.5f, Action onComplete = null)
+    {
+        int completedCount = 0;
+        int totalAnimations = 0;
+
+        // Pause UI FadeIn
+if (pauseUI != null)
+  {
+      totalAnimations++;
+            pauseUI.gameObject.SetActive(true);
+         pauseUI.DOFade(1f, duration).OnComplete(() =>
+  {
+         completedCount++;
+            if (completedCount == totalAnimations)
+    {
+      onComplete?.Invoke();
+            }
+    });
+        }
+
+        // Item Get UI FadeIn
+      if (itemGetUI != null)
+        {
+            totalAnimations++;
+ itemGetUI.gameObject.SetActive(true);
+  itemGetUI.DOFade(1f, duration).OnComplete(() =>
+          {
+       completedCount++;
+          if (completedCount == totalAnimations)
+      {
+        onComplete?.Invoke();
+            }
+         });
+        }
+
+        // µÑ ´Ù nullÀÌ¸é Áï½Ã Äİ¹é È£Ãâ
+        if (totalAnimations == 0)
+      {
+ onComplete?.Invoke();
+        }
     }
 
     public void SetPausePopupActive(bool active)
-    {
+  {
         if (pausePopup == null) return;
-        pausePopup.SetActive(active);
+     pausePopup.SetActive(active);
     }
 
     public void ShowItemPopup(string description)
     {
-        if (itemGetPopup == null) return;
+  if (itemGetPopup == null) return;
         if (itemDescriptionText != null) itemDescriptionText.text = description;
-        itemGetPopup.SetActive(true);
+ itemGetPopup.SetActive(true);
         IsItemPopupActive = true;
     }
 
-    public void CloseItemPopup()
-    {
-        if (itemGetPopup == null) return;
+  public void CloseItemPopup()
+  {
+     if (itemGetPopup == null) return;
         itemGetPopup.SetActive(false);
-        IsItemPopupActive = false;
+   IsItemPopupActive = false;
     }
 
     public void SetRunningActionCanvasActive(bool active)
-    {
+{
         if (runnigActionCanvasGroup == null) return;
         runnigActionCanvasGroup.gameObject.SetActive(active);
     }
@@ -96,45 +217,43 @@ public class UIManager : SingletonBehaviour<UIManager>
     }
 
     /// <summary>
-    /// Tired UIë¥¼ ê¹œë°•ì´ê²Œ í•©ë‹ˆë‹¤. í•¨ìˆ˜ë¥¼ ë‹¤ì‹œ í˜¸ì¶œí•  ë•Œê¹Œì§€ ê³„ì† ê¹œë°•ì…ë‹ˆë‹¤.
+    /// Tired UI¸¦ ±ô¹ÚÀÌ°Ô ÇÕ´Ï´Ù. ÇÔ¼ö¸¦ ´Ù½Ã È£ÃâÇÒ ¶§±îÁö °è¼Ó ±ô¹ÚÀÔ´Ï´Ù.
     /// </summary>
-    [YarnCommand ("startTiredUiBlink")]
+    [YarnCommand("startTiredUiBlink")]
     public void StartTiredUIBlink()
     {
-      if (tiredUICanvasGroup == null) return;
+   if (tiredUICanvasGroup == null) return;
 
-        // ê¸°ì¡´ ì‹œí€€ìŠ¤ê°€ ìˆìœ¼ë©´ ì¤‘ì§€
+   // ±âÁ¸ ½ÃÄö½º°¡ ÀÖÀ¸¸é ÁßÁö
         if (tiredBlinkSequence != null) tiredBlinkSequence.Kill();
 
-        // Tired UI í™œì„±í™”
+   // Tired UI È°¼ºÈ­
         tiredUICanvasGroup.gameObject.SetActive(true);
 
-        // ê¹œë°•ì´ëŠ” ì‹œí€€ìŠ¤ ìƒì„± (ë¬´í•œ ë°˜ë³µ)
+        // ±ô¹ÚÀÌ´Â ½ÃÄö½º »ı¼º (¹«ÇÑ ¹İº¹)
         tiredBlinkSequence = DOTween.Sequence();
         tiredBlinkSequence
-          .Append(tiredUICanvasGroup.DOFade(0f, 0.3f))  // 0.3ì´ˆì— íˆ¬ëª…í•˜ê²Œ
-  .Append(tiredUICanvasGroup.DOFade(1f, 0.3f))  // 0.3ì´ˆì— ë¶ˆíˆ¬ëª…í•˜ê²Œ
-            .SetLoops(-1, LoopType.Restart);          // ë¬´í•œ ë°˜ë³µ
-  }
+            .Append(tiredUICanvasGroup.DOFade(0f, 0.3f))  // 0.3ÃÊ¿¡ Åõ¸íÇÏ°Ô
+          .Append(tiredUICanvasGroup.DOFade(1f, 0.3f))  // 0.3ÃÊ¿¡ ºÒÅõ¸íÇÏ°Ô
+            .SetLoops(-1, LoopType.Restart);              // ¹«ÇÑ ¹İº¹
+    }
 
-    /// <summary>
-    /// Tired UI ê¹œë°•ì„ì„ ì¤‘ì§€í•©ë‹ˆë‹¤.
+/// <summary>
+    /// Tired UI ±ô¹ÚÀÓÀ» ÁßÁöÇÕ´Ï´Ù.
     /// </summary>
-    [YarnCommand ("stopTiredUiBlink")]
+    [YarnCommand("stopTiredUiBlink")]
     public void StopTiredUIBlink()
-    {
+{
         if (tiredBlinkSequence != null)
-    {
-        tiredBlinkSequence.Kill();
+        {
+            tiredBlinkSequence.Kill();
             tiredBlinkSequence = null;
         }
 
-    // Tired UIë¥¼ ë¹„í™œì„±í™”í•˜ê±°ë‚˜ ì›ë˜ ìƒíƒœë¡œ ë³µì›
-    if (tiredUICanvasGroup != null)
-    {
-            tiredUICanvasGroup.alpha = 1f;
-        tiredUICanvasGroup.gameObject.SetActive(false);
-     }
+        // Tired UI¸¦ ºñÈ°¼ºÈ­ÇÏ°Å³ª ¿ø·¡ »óÅÂ·Î º¹¿ø
+        if (tiredUICanvasGroup != null)
+ {
+        tiredUICanvasGroup.alpha = 1f;
+      }
     }
 }
-
