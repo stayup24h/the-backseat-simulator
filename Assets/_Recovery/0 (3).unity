@@ -1973,7 +1973,6 @@ MonoBehaviour:
   pausePopup: {fileID: 171360849}
   itemGetPopup: {fileID: 921958215}
   itemDescriptionText: {fileID: 1860944296}
-  tiredUICanvasGroup: {fileID: 2071298517}
 --- !u!4 &314760712
 Transform:
   m_ObjectHideFlags: 0
@@ -6186,7 +6185,6 @@ RectTransform:
   - {fileID: 921958216}
   - {fileID: 171360850}
   - {fileID: 1966000553}
-  - {fileID: 2071298515}
   - {fileID: 2081057979}
   - {fileID: 1672839220}
   m_Father: {fileID: 0}
@@ -7749,7 +7747,7 @@ GameObject:
   - component: {fileID: 2071298516}
   - component: {fileID: 2071298517}
   m_Layer: 5
-  m_Name: tired
+  m_Name: Slider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7770,11 +7768,11 @@ RectTransform:
   - {fileID: 1418533916}
   - {fileID: 1081743810}
   - {fileID: 239940088}
-  m_Father: {fileID: 1508264503}
+  m_Father: {fileID: 2081057979}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 155, y: 43}
+  m_AnchoredPosition: {x: -755, y: -447}
   m_SizeDelta: {x: 243.01001, y: 47.631836}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2071298516
@@ -7971,6 +7969,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2071298515}
   - {fileID: 1345566356}
   - {fileID: 692680620}
   m_Father: {fileID: 1508264503}

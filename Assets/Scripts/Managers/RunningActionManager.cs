@@ -165,15 +165,13 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
         }
         spawnedPrefabs.Clear();
         
-        cameraDirector?.FocusRunningAction();
-        
         // 초기화: 종료 플래그 리셋
         isEnding = false;
         pendingEnd = false;
         isStarting = true; // 시작 중 표시
         isJumping = false; // 점프 플래그 리셋
 
-        // 저장
+        // 저장 (변수 할당을 먼저 진행)
         cameraDirector = cameraDir;
         playerCtrl = player;
 
@@ -185,7 +183,9 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
         leftHandStartTransform = leftStart;
         leftHandTargetTransform = leftTarget;
 
-
+        // 카메라 포커스 호출 (변수 할당 후에 호출)
+        cameraDirector?.FocusRunningAction();
+        
         // 왼손의 Animator 찾기 (자식 포함)
         if (leftHandTransform != null)
         {
@@ -435,10 +435,6 @@ public class RunningActionManager : SingletonBehaviour<RunningActionManager>
             jumpObject.position = jumpObjectStartPosition;
             hasSavedJumpObjectStartPos = false;
         }
-
-        // Disable hand objects when running action finishes
-        if (leftHandTransform != null) leftHandTransform.gameObject.SetActive(false);
-        if (rightHandTransform != null) rightHandTransform.gameObject.SetActive(false);
 
         // 플레이어 마우스 잠금 해제
         playerCtrl?.UnlockMouseLook();

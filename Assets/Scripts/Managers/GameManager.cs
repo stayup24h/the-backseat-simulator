@@ -35,6 +35,7 @@ public class GameManager : SingletonBehaviour<GameManager>
     public bool isDialogueMode;
     public bool isPaused;
     public bool isInitializationInProgress; // 초기화 진행 중 플래그
+    public bool isGameCleared = false; // 게임 클리어 여부
     // public bool isRunningAction; // RunningActionManager로 분리되어 제거
     public CameraDirector cameraDirector;
 
@@ -209,29 +210,30 @@ public class GameManager : SingletonBehaviour<GameManager>
         Debug.Log("게임 초기화 시작...");
 
         // 게임 시작 시 집중력 초기화
-        currentConcentration = maxConcentration;
-        isDialogueMode = false;
-        isPaused = false;
+    currentConcentration = maxConcentration;
+      isDialogueMode = false;
+      isPaused = false;
+    isGameCleared = false;
 
-        // 슬라이더 UI 초기 설정을 UIManager로 위임
+   // 슬라이더 UI 초기 설정을 UIManager로 위임
         if (UIManager.Instance != null)
-        {
+  {
             UIManager.Instance.SetConcentration(currentConcentration, maxConcentration);
         }
-        else
+    else
         {
             Debug.LogError("UIManager 인스턴스가 없습니다. Concentration UI를 설정할 수 없습니다.");
         }
 
         // pictures 초기화
         for (int i = 0; i < numPictures; i++)
-        {
-            pictures[i].isGot = false;
+  {
+   pictures[i].isGot = false;
             pictures[i].pictureObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.1f);
-        }
+    }
         isGameOver = false;
 
-        // 초기화 완료
+  // 초기화 완료
         Debug.Log("게임 초기화 완료!");
     }
 
@@ -283,42 +285,51 @@ public class GameManager : SingletonBehaviour<GameManager>
         {
             UIManager.Instance.SetPausePopupActive(false);
             UIManager.Instance.SetInGameUIActive(true);
-        }
+     }
         
         DialogueManager.Instance.StartDialogue("endDialogue");
-            
+         
         isGameOver = true;
-        isPaused = false;
+      isPaused = false;
         SoundManager.Instance.BGMFadeOut();
         SoundManager.Instance.NoiseFadeOut();
         pictureRectTransform.DOAnchorPos(pictureStartTransform.position, moveDuration).SetEase(Ease.OutCirc);
         pictureRectTransform.DORotate(pictureStartTransform.rotation, moveDuration).SetEase(Ease.OutCirc);
         pictureRectTransform.DOScale(pictureStartTransform.scale, moveDuration).SetEase(Ease.OutCirc).OnComplete(() =>
-        {
+ {
             for(int i = 0; i < numPictures; i++)
             {
-                pictures[i].isGot = false;
-                pictures[i].pictureObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
-            }
+       pictures[i].isGot = false;
+  pictures[i].pictureObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
+         }
 
             rightHandTransform.DOAnchorPos(rightHandStartTransform.position, 1).SetEase(Ease.OutCirc);
-            rightHandTransform.DORotate(rightHandStartTransform.rotation, 1);
+     rightHandTransform.DORotate(rightHandStartTransform.rotation, 1);
             rightHandTransform.DOScale(rightHandStartTransform.scale, 1);
 
-            if (UIManager.Instance != null)
-            {
-                UIManager.Instance.FadeInTitleUI(onComplete: () =>
-                {
-                    Cursor.lockState = CursorLockMode.Confined;
-                    Cursor.visible = true;
-                    //GameReset();
-                });
+         if (UIManager.Instance != null)
+   {
+     if (isGameCleared)
+        {
+    UIManager.Instance.SetEndingUIActive(true);
+         Cursor.lockState = CursorLockMode.Confined;
+   Cursor.visible = true;
+           }
+     else
+         {
+   UIManager.Instance.FadeInTitleUI(onComplete: () =>
+      {
+    Cursor.lockState = CursorLockMode.Confined;
+    Cursor.visible = true;
+     //GameReset();
+           });
+     }
             }
-            else
-            {
-                Cursor.lockState = CursorLockMode.Confined;
-                Cursor.visible = true;
-            }
+     else
+       {
+        Cursor.lockState = CursorLockMode.Confined;
+       Cursor.visible = true;
+    }
         });
     }
 
@@ -347,10 +358,11 @@ public class GameManager : SingletonBehaviour<GameManager>
         {
             if (!pictures[i].isGot)
             {
-                return;
-            }
+              return;
+         }
         }
 
+        isGameCleared = true;
         StartCoroutine(ClearGameCoroutine());
     }
 
