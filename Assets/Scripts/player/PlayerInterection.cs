@@ -40,6 +40,17 @@ public class PlayerInteraction : MonoBehaviour
         pausePopup.SetActive(false);
     }
 
+    void OnEnable()
+    {
+        // dialogueRunner가 인스펙터에 연결되어 있다면 이벤트 구독
+        dialogueRunner?.onDialogueStart?.AddListener(HandleDialogueStart);
+    }
+
+    void OnDisable()
+    {
+        dialogueRunner?.onDialogueStart?.RemoveListener(HandleDialogueStart);
+    }
+
     // PlayerInteraction.cs의 Update 함수는 그대로 둡니다.
     void Update()
     {
@@ -51,12 +62,26 @@ public class PlayerInteraction : MonoBehaviour
     /// </summary>
     private void CheckForInteractable()
     {
-        if (GameManager.Instance.currentConcentration < 5 
+        // 상호작용이 불가능한 상태 확인
+        bool isInteractionDisabled = GameManager.Instance.currentConcentration < 5 
             || GameManager.Instance.isPaused 
             || GameManager.Instance.isDialogueMode 
             || GameManager.Instance.isGameOver
-            || RunningActionManager.Instance != null && RunningActionManager.Instance.IsRunningAction)
+            || GameManager.Instance.isInitializationInProgress;
+
+        // RunningAction 중인지 확인
+        bool isRunningActionActive = RunningActionManager.Instance != null && RunningActionManager.Instance.IsRunningAction;
+
+        // --- 변경: 상호작용이 비활성화되거나 RunningAction이 활성화된 경우
+        if (isInteractionDisabled || isRunningActionActive)
         {
+            // 이전에 하이라이트된 대상이 있으면 즉시 Unhighlight 호출
+            if (currentInteractable != null)
+            {
+                currentInteractable.Unhighlight();
+                currentInteractable = null;
+            }
+
             HideUI();
             return;
         }
@@ -115,6 +140,9 @@ public class PlayerInteraction : MonoBehaviour
     /// </summary>
     public void OnInteract(InputValue value)
     {
+        // 초기화 진행 중이면 모든 상호작용 차단
+        if (GameManager.Instance.isInitializationInProgress) return;
+
         // 아이템 획득 팝업이 활성화되어 있다면 팝업을 닫습니다.
         if (value.isPressed && UIManager.Instance != null && UIManager.Instance.IsItemPopupActive)
         {
@@ -169,5 +197,16 @@ public class PlayerInteraction : MonoBehaviour
         Cursor.visible = true;
         pausePopup.SetActive(true);
         GameManager.Instance.isGameOver = true;
+    }
+
+    // 다이얼로그가 시작될 때 즉시 호출되어 현재 하이라이트를 해제합니다.
+    private void HandleDialogueStart()
+    {
+        if (currentInteractable != null)
+        {
+            currentInteractable.Unhighlight();
+            currentInteractable = null;
+            HideUI();
+        }
     }
 }

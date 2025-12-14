@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 48ef03b3cb4cefe43978b492e1bd26b8, type: 3}
-  m_Name: GetPhoto
+  m_Name: pickup
   m_EditorClassIdentifier: Assembly-CSharp::SoundDataSO
-  soundName: GetPhoto
+  soundName: pickup
   clips:
-  - clip: {fileID: 8300000, guid: 12fddd6db80ab264386fc287aac27b03, type: 3}
+  - clip: {fileID: 8300000, guid: 06ee26010964c08448c43387e5a3ea65, type: 3}
     volume: 0.4
     pitch: 1
   masterVolume: 1

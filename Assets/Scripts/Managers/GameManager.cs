@@ -34,6 +34,7 @@ public class GameManager : SingletonBehaviour<GameManager>
     public bool isGameOver = true; // 게임 오버 상태 플래그
     public bool isDialogueMode;
     public bool isPaused;
+    public bool isInitializationInProgress; // 초기화 진행 중 플래그
     // public bool isRunningAction; // RunningActionManager로 분리되어 제거
     public CameraDirector cameraDirector;
 
@@ -141,6 +142,7 @@ public class GameManager : SingletonBehaviour<GameManager>
             {
                 dialogueRunner.StartDialogue("tireddrive");
                 isPaused = false;
+                isInitializationInProgress = false;
             });
         });
     }
@@ -194,6 +196,7 @@ public class GameManager : SingletonBehaviour<GameManager>
     public void DecreaseOnInteract()
     {
         if (isGameOver) return;
+        if (isInitializationInProgress) return;
 
         currentConcentration -= decreasePerInteraction;
         UpdateConcentrationUI();
@@ -202,6 +205,9 @@ public class GameManager : SingletonBehaviour<GameManager>
 
     private void Initialize()
     {
+        isInitializationInProgress = true;
+        Debug.Log("게임 초기화 시작...");
+
         // 게임 시작 시 집중력 초기화
         currentConcentration = maxConcentration;
         isDialogueMode = false;
@@ -224,6 +230,9 @@ public class GameManager : SingletonBehaviour<GameManager>
             pictures[i].pictureObject.GetComponent<Image>().color = new Color(1f, 1f, 1f, 0.1f);
         }
         isGameOver = false;
+
+        // 초기화 완료
+        Debug.Log("게임 초기화 완료!");
     }
 
     public float ConcentrationRatio
@@ -275,7 +284,9 @@ public class GameManager : SingletonBehaviour<GameManager>
             UIManager.Instance.SetPausePopupActive(false);
             UIManager.Instance.SetInGameUIActive(true);
         }
-
+        
+        DialogueManager.Instance.StartDialogue("endDialogue");
+            
         isGameOver = true;
         isPaused = false;
         SoundManager.Instance.BGMFadeOut();
@@ -315,6 +326,7 @@ public class GameManager : SingletonBehaviour<GameManager>
     public void GetPicture(int pictureIndex)
     {
         if (pictureIndex < 0 || pictureIndex >= numPictures || pictures[pictureIndex].isGot) return;
+        if (isInitializationInProgress) return;
         pictures[pictureIndex].isGot = true;
         SoundManager.Instance.PlaySFX("GetPhoto");
         pictures[pictureIndex].pictureObject.GetComponent<Image>().DOFade(1f, 1.0f).OnComplete(() =>

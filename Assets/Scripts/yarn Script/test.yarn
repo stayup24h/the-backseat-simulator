@@ -1,4 +1,5 @@
 ﻿title: test
+position: -66,-59
 ---
 엄마: Hi there! How can I help you today?
 아빠: Hello! I have a question about our family trip.
@@ -11,6 +12,7 @@
 
 
 title: Donut
+position: 154,-59
 ---
 엄마: 이 도넛이 개발자가 3시간이나 걸려서 만들었다고 해.
 아빠: 블렌더는 어렵구나...
@@ -26,6 +28,7 @@ title: Donut
 ===
 
 title: RecallWithPhoto
+position: -66,95
 ---
 : 대충 사진을 보고 회상하는 내용
 : 기억 조각을 맞춰본다
@@ -40,6 +43,7 @@ title: RecallWithPhoto
 ===
 
 title : tireddrive
+position: -285,252
 ---
 : 재밌게 놀고 집에 돌아가는 길에 점점 졸려오는 내용
 아빠: 오늘 재밌게 놀았지?
@@ -57,6 +61,8 @@ title : tireddrive
 ===
 
 title : thatSong
+color: blue
+position: -286,-201
 ---
 : 대충 어린 시절에 들었던 노래 생각나는 내용
 : 라디오 버튼을 다시 누르면 노래가 멈추는거 같다
@@ -66,6 +72,7 @@ title : thatSong
 ===
 
 title: Light
+position: 160,250
 ---
 : 운전 중에 내부등 키면 눈부셔서 불편한 내용
 아빠: 내부등 키지마라
@@ -75,6 +82,7 @@ title: Light
 ===
 
 title: FingerRunning
+position: -68,-202
 ---
 : 졸린걸 참으려고 손가락으로 차창밖 풍경을 가지고 노는 내용
 : 여기엔 러닝액션을 넣어야 한다
@@ -86,6 +94,7 @@ title: FingerRunning
 ===
 
 title: GameOver
+position: 153,-200
 ---
 : 졸려서 자버렸다.
 : 게임 오버
@@ -95,6 +104,7 @@ title: GameOver
 ===
 
 title: Ending
+position: -284,-58
 ---
 : 그땐 그랬지.
 : 게임 클리어
@@ -103,6 +113,7 @@ title: Ending
 ===
 
 title: Dad
+position: -286,95
 ---
 아빠: 아빠 안 잔다.
 아빠: 명상하면서 운전하는 고도의 기술이야.
@@ -110,16 +121,23 @@ title: Dad
 ===
 
 title: Mom
+position: 153,97
 ---
 엄마: 엄마는 이럴 때 무슨말을 해야할지 모르겠어
 <<dialogueEnd @GameManager>>
 ===
 
 title: YoungerSister
+position: -66,248
 ---
 동생: 뭐
 : 그냥
 동생: 엄마! 얘가 괴롭혀
 엄마: 둘이 싸우지 마~
+<<dialogueEnd @GameManager>>
+===
+
+title: endDialogue
+---
 <<dialogueEnd @GameManager>>
 ===
