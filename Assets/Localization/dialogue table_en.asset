@@ -17,7 +17,226 @@ MonoBehaviour:
   m_SharedData: {fileID: 11400000, guid: 959018284c9a96048b626b072f4d0ec4, type: 2}
   m_Metadata:
     m_Items: []
-  m_TableData: []
+  m_TableData:
+  - m_Id: 190710972416
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190752915456
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190752915457
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190752915458
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109760
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109761
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109762
+    m_Localized: 
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109763
+    m_Localized: 'Mom: I heard the developer took 3 hours to make this donut.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109764
+    m_Localized: 'Dad: Blender is tough...'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109765
+    m_Localized: 'Younger Sister: They said Blender was easy to follow with tutorials,
+      but moving it to Unity was harder.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109766
+    m_Localized: 'Mom: I see. It''s a relief that it tastes good though!'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109767
+    m_Localized: ': Hello'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109768
+    m_Localized: 'Dad: Okay, okay'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109769
+    m_Localized: 'Dad: Yeah, looks delicious!'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109770
+    m_Localized: 'Younger Sister: That''s right, I want to try making it myself next
+      time!'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109771
+    m_Localized: ': I found a photo taken in my childhood.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109772
+    m_Localized: ': August 2008, on the way back from a trip.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109773
+    m_Localized: ': I thought it would be an unforgettable memory...'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109774
+    m_Localized: ': It''s strange. I can''t remember the important parts.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109775
+    m_Localized: ': My mind is blank, like the corner of a photo has been torn off...'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109776
+    m_Localized: ': I''m really tired, but I shouldn''t fall asleep now...'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109777
+    m_Localized: ': It feels like these faded memories will disappear forever.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109778
+    m_Localized: ': If my fatigue reaches its limit, I''ll fall asleep.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109779
+    m_Localized: ': Let''s endure the tiredness and observe carefully to revive the
+      memories.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109780
+    m_Localized: ': In my childhood, I had my own way of overcoming this tiredness...'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109781
+    m_Localized: ': A clue must be hidden somewhere in the car.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109782
+    m_Localized: ': Without missing a single thing... I want to recover this memory.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109783
+    m_Localized: ': I was very tired back then too.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109784
+    m_Localized: ': I remember trying hard not to fall asleep in the car.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109785
+    m_Localized: 'Dad: Did you have fun today?'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109786
+    m_Localized: 'Mom: We have 2 more hours to get home.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109787
+    m_Localized: 'Mom: If you''re sleepy, go to sleep.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109788
+    m_Localized: ': Yes'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109789
+    m_Localized: 'Dad: Then shall we start?'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109790
+    m_Localized: ': A popular song from my childhood played on the radio.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109791
+    m_Localized: ': It seems the music stops if I press the radio button again.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109792
+    m_Localized: ': Does a different song play every time I turn it on again?'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109793
+    m_Localized: ': The interior light turned on.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109794
+    m_Localized: 'Dad: Don''t turn on the interior light.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109795
+    m_Localized: 'Dad: It''s dangerous.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109796
+    m_Localized: ': I think I overcame drowsiness this way in my childhood.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109797
+    m_Localized: ': It was really fun.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109798
+    m_Localized: ': I ended up falling asleep.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109799
+    m_Localized: ': Game Over'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109800
+    m_Localized: ': That''s how it was back then.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109801
+    m_Localized: ': It feels like I''ve protected my precious memory.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109802
+    m_Localized: ': Clear'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109803
+    m_Localized: 'Dad: Dad is not sleeping.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109804
+    m_Localized: 'Dad: It''s a high-level skill of driving while meditating.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109805
+    m_Localized: 'Mom: Mom doesn''t know what to say at times like this.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109806
+    m_Localized: 'Younger Sister: What'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109807
+    m_Localized: ': Just because'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109808
+    m_Localized: 'Younger Sister: Mom! He''s bothering me!'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 190757109809
+    m_Localized: 'Mom: Don''t fight, you two~'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

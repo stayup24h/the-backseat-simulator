@@ -2,6 +2,7 @@ using UnityEngine;
 using Yarn.Unity;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 public class YarnCameraConnector : DialoguePresenterBase
 {
@@ -10,6 +11,19 @@ public class YarnCameraConnector : DialoguePresenterBase
 
     [Tooltip("Player에 붙어있는 PlayerCtrl 스크립트를 연결하세요.")]
     public PlayerCtrl mouseLook;
+
+    [System.Serializable]
+    public struct CharacterNameMapping
+    {
+        [Tooltip("Yarn 스크립트의 원본 캐릭터 이름 (고정)")]
+        public string yarnCharacterName;
+        
+        [Tooltip("CameraDirector의 characterId")]
+        public string characterId;
+    }
+
+    [Tooltip("Yarn 캐릭터 이름을 CameraDirector ID로 변환하는 매핑")]
+    public List<CharacterNameMapping> characterMappings;
 
     void Start()
     {
@@ -39,6 +53,31 @@ public class YarnCameraConnector : DialoguePresenterBase
         await Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Yarn 캐릭터 이름을 CameraDirector의 ID로 변환합니다.
+    /// </summary>
+    private string GetCharacterIdFromYarnName(string yarnCharacterName)
+    {
+        if (string.IsNullOrEmpty(yarnCharacterName)) return yarnCharacterName;
+
+        // characterMappings에서 일치하는 매핑 찾기
+        if (characterMappings != null)
+        {
+            foreach (var mapping in characterMappings)
+            {
+                if (!string.IsNullOrEmpty(mapping.yarnCharacterName) && 
+                    mapping.yarnCharacterName.Equals(yarnCharacterName, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return mapping.characterId;
+                }
+            }
+        }
+
+        // 매핑이 없으면 원본 이름을 그대로 반환 (fallback)
+        Debug.LogWarning($"[YarnCameraConnector] '{yarnCharacterName}'에 대한 매핑을 찾을 수 없습니다.");
+        return yarnCharacterName;
+    }
+
     public override async YarnTask RunLineAsync(LocalizedLine line, LineCancellationToken token)
     {
         // [핵심] 일반 대사가 나올 때는 커서를 숨깁니다.
@@ -47,9 +86,11 @@ public class YarnCameraConnector : DialoguePresenterBase
         Cursor.lockState = CursorLockMode.Locked;
         GameManager.Instance.isDialogueMode = true;
         
-        if (cameraDirector != null)
+        if (cameraDirector != null && !string.IsNullOrEmpty(line.CharacterName))
         {
-            cameraDirector.FocusOnCharacter(line.CharacterName);
+            // Yarn 캐릭터 이름을 ID로 변환
+            string characterId = GetCharacterIdFromYarnName(line.CharacterName);
+            cameraDirector.FocusOnCharacter(characterId);
         }
         await Task.CompletedTask;
     }

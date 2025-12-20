@@ -2173,16 +2173,20 @@ MonoBehaviour:
   tweenDuration: 0.5
   easeType: 21
   characterTargets:
-  - yarnCharacterName: "\uC5C4\uB9C8"
+  - characterId: mom
+    yarnCharacterName: "\uC5C4\uB9C8"
     targetTransform: {fileID: 245743136}
     offset: {x: 0, y: 0, z: 0}
-  - yarnCharacterName: "\uC544\uBE60"
+  - characterId: dad
+    yarnCharacterName: "\uC544\uBE60"
     targetTransform: {fileID: 81867042}
     offset: {x: 0, y: 0, z: 0}
-  - yarnCharacterName: "\uB3D9\uC0DD"
+  - characterId: younger sister
+    yarnCharacterName: "\uB3D9\uC0DD"
     targetTransform: {fileID: 1833827352}
     offset: {x: 0, y: 0, z: 0}
-  - yarnCharacterName: runningAction
+  - characterId: running action
+    yarnCharacterName: runningAction
     targetTransform: {fileID: 1974727381}
     offset: {x: 0, y: 0, z: 0}
   playerCtrl: {fileID: 271212799}
@@ -4575,6 +4579,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::YarnCameraConnector
   cameraDirector: {fileID: 271212798}
   mouseLook: {fileID: 271212799}
+  characterMappings:
+  - yarnCharacterName: Mom
+    characterId: mom
+  - yarnCharacterName: "\uC5C4\uB9C8"
+    characterId: mom
+  - yarnCharacterName: Dad
+    characterId: dad
+  - yarnCharacterName: "\uC544\uBE60"
+    characterId: dad
+  - yarnCharacterName: Younger Sister
+    characterId: dad
+  - yarnCharacterName: "\uB3D9\uC0DD"
+    characterId: dad
 --- !u!114 &847776961 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8309902628685535410, guid: 52571f68872914e24837210513edea1d, type: 3}
