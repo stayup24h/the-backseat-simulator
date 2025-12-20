@@ -183,7 +183,7 @@ public class PlayerInteraction : MonoBehaviour
     
     public void OnPause(InputValue value)
     {
-        if(GameManager.Instance.isGameOver||GameManager.Instance.isPaused) return;
+        if(GameManager.Instance.isGameOver||GameManager.Instance.isPaused||GameManager.Instance.isDialogueMode) return;
         if (RunningActionManager.Instance != null && RunningActionManager.Instance.IsRunningAction)
         {
             RunningActionManager.Instance.EndRunningAction();
