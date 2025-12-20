@@ -5782,13 +5782,37 @@ MonoBehaviour:
   pictures:
   - isGot: 0
     pictureObject: {fileID: 415292826}
-    pictureDescription: "\uC774 \uB178\uB798 \uC81C\uBAA9\uC774 \uBB50\uC600\uB354\uB77C"
+    pictureDescription:
+      m_TableReference:
+        m_TableCollectionName: GUID:bf3977f7eccaeeb41bcb08b2a241b7e1
+      m_TableEntryReference:
+        m_KeyId: 15137041973248
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
   - isGot: 0
     pictureObject: {fileID: 482104179}
-    pictureDescription: "\uC6B4\uC804\uC911\uC5D4 \uBD88\uD0A4\uBA74 \uC704\uD5D8\uD558\uC9C0"
+    pictureDescription:
+      m_TableReference:
+        m_TableCollectionName: GUID:bf3977f7eccaeeb41bcb08b2a241b7e1
+      m_TableEntryReference:
+        m_KeyId: 15435340873728
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
   - isGot: 0
     pictureObject: {fileID: 293516388}
-    pictureDescription: "\uADF8\uB550 \uC774\uB7F0\uAC8C \uC7AC\uBC0C\uC5C8\uC5B4"
+    pictureDescription:
+      m_TableReference:
+        m_TableCollectionName: GUID:bf3977f7eccaeeb41bcb08b2a241b7e1
+      m_TableEntryReference:
+        m_KeyId: 15483889942528
+        m_Key: 
+      m_FallbackState: 0
+      m_WaitForCompletion: 0
+      m_LocalVariables: []
   moveDuration: 2
   pictureRectTransform: {fileID: 471285648}
   pictureStartTransform:
@@ -5820,6 +5844,9 @@ MonoBehaviour:
   noisePosition: {x: 0, y: 0, z: 0}
   noiseSpatialBlend: 0.4
   daynightController: {fileID: 1179889302}
+  references:
+    version: 2
+    RefIds: []
 --- !u!4 &1179889301
 Transform:
   m_ObjectHideFlags: 0

@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using DG.Tweening;
 using Yarn.Unity;
 using System.Collections;
+using UnityEngine.Localization;
 
 [System.Serializable]
 public struct TransformData
@@ -17,7 +18,7 @@ public class PictureInfo
 {
     public bool isGot;
     public GameObject pictureObject;
-    public string pictureDescription;
+    public LocalizedString pictureDescription;
 }
 
 
@@ -384,7 +385,7 @@ public class GameManager : SingletonBehaviour<GameManager>
         // UIManager를 통해 아이템 팝업을 표시
         if (UIManager.Instance != null)
         {
-            UIManager.Instance.ShowItemPopup(pictures[pictureIndex].pictureDescription);
+            UIManager.Instance.ShowItemPopup(pictures[pictureIndex].pictureDescription.GetLocalizedString());
         }
     }
 

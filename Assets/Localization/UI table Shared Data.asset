@@ -83,6 +83,18 @@ MonoBehaviour:
     m_Key: WatchTheScenery
     m_Metadata:
       m_Items: []
+  - m_Id: 15137041973248
+    m_Key: song
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15435340873728
+    m_Key: InteriorLight
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15483889942528
+    m_Key: PlaylLkeThis
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
