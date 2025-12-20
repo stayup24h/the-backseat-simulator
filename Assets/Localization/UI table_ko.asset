@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: UI table_ko
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: ko
+  m_SharedData: {fileID: 11400000, guid: bf3977f7eccaeeb41bcb08b2a241b7e1, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 61929062400
+    m_Localized: "\uAC8C\uC784 \uC2DC\uC791"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 142686191616
+    m_Localized: "\uC124\uC815"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183819730944
+    m_Localized: "\uD53C\uB85C\uB3C4"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 223703367680
+    m_Localized: "\uB6F0\uC5B4\uC624\uB974\uAE30"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 356637638656
+    m_Localized: "\uB098\uAC00\uAE30"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 498082152448
+    m_Localized: "\uB124"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 519179501568
+    m_Localized: "\uC544\uB2C8\uC694"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 530558648320
+    m_Localized: "\uD0C0\uC774\uD2C0\uB85C \uB3CC\uC544\uAC00\uC2DC\uACA0\uC2B5\uB2C8\uAE4C?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 637169467392
+    m_Localized: "\uAE30\uC5B5 \uC870\uAC01 \uD68D\uB4DD"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 760729468928
+    m_Localized: "\uC77C\uC2DC\uC815\uC9C0"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2222717042688
+    m_Localized: "\uAC8C\uC784 \uC885\uB8CC"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2249501868032
+    m_Localized: "\uCC98\uC74C\uC73C\uB85C"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4868207181824
+    m_Localized: "\uB9D0\uAC78\uAE30"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5195056709632
+    m_Localized: "\uC0C1\uD638\uC791\uC6A9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5296634363904
+    m_Localized: "\uBD88 \uCF1C\uAE30"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5393392762880
+    m_Localized: "\uB77C\uB514\uC624 \uBC84\uD2BC \uB204\uB974\uAE30"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6732483035136
+    m_Localized: "\uD48D\uACBD \uBCF4\uAE30"
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

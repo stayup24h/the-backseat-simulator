@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: UI table_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: bf3977f7eccaeeb41bcb08b2a241b7e1, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 61929062400
+    m_Localized: Game Start
+    m_Metadata:
+      m_Items: []
+  - m_Id: 142686191616
+    m_Localized: Setting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 183819730944
+    m_Localized: Fatigue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 223703367680
+    m_Localized: Jump
+    m_Metadata:
+      m_Items: []
+  - m_Id: 356637638656
+    m_Localized: Exit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 498082152448
+    m_Localized: Yes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 519179501568
+    m_Localized: No
+    m_Metadata:
+      m_Items: []
+  - m_Id: 530558648320
+    m_Localized: Would you like to return to the title?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 637169467392
+    m_Localized: Acquire memory fragment
+    m_Metadata:
+      m_Items: []
+  - m_Id: 760729468928
+    m_Localized: Pause
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2222717042688
+    m_Localized: Game Exit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 2249501868032
+    m_Localized: Return To Title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4868207181824
+    m_Localized: talk to
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5195056709632
+    m_Localized: interaction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5296634363904
+    m_Localized: turn on light
+    m_Metadata:
+      m_Items: []
+  - m_Id: 5393392762880
+    m_Localized: press the radio button
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6732483035136
+    m_Localized: watch the scenery
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

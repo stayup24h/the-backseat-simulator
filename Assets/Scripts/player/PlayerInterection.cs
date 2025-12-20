@@ -124,7 +124,7 @@ public class PlayerInteraction : MonoBehaviour
     private void ShowUI(Interactable interactable)
     {
         interactionUIParent.SetActive(true);
-        interactionText.text = interactable.promptMessage;
+        interactionText.text = interactable.promptMessage.GetLocalizedString();
     }
 
     /// <summary>

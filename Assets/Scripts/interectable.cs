@@ -1,11 +1,12 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.Localization;
 
 public class Interactable : MonoBehaviour
 {
     [Header("UI 설정")]
     [Tooltip("UI에 표시될 상호작용 프롬프트 메시지")]
-    public string promptMessage = "상호작용";
+    public LocalizedString promptMessage;
 
     [Header("하이라이트 레이어 설정")]
     [Tooltip("오브젝트가 하이라이트될 때 변경될 레이어 이름")]
@@ -18,7 +19,7 @@ public class Interactable : MonoBehaviour
     // --- 내부 변수 ---
     private int originalLayerIndex; // 오브젝트의 원래 레이어
     private int highlightLayerIndex; // "Highlight" 레이어의 숫자 인덱스
-    private bool _isHighlighted = false;
+    private bool isHighlighted = false;
 
     void Awake()
     {
@@ -50,9 +51,9 @@ public class Interactable : MonoBehaviour
     {
         if (highlightLayerName == "") return;
         // 하이라이트 레이어를 못 찾았거나 이미 하이라이트된 상태면 무시
-        if (_isHighlighted || highlightLayerIndex == -1) return;
+        if (isHighlighted || highlightLayerIndex == -1) return;
 
-        _isHighlighted = true;
+        isHighlighted = true;
         // 자신과 모든 자식 오브젝트의 레이어를 "Highlight"로 변경합니다.
         SetLayerRecursively(transform, highlightLayerIndex);
     }
@@ -62,9 +63,9 @@ public class Interactable : MonoBehaviour
     /// </summary>
     public void Unhighlight()
     {
-        if (!_isHighlighted) return;
+        if (!isHighlighted) return;
 
-        _isHighlighted = false;
+        isHighlighted = false;
         // 자신과 모든 자식 오브젝트의 레이어를 원래 레이어로 되돌립니다.
         SetLayerRecursively(transform, originalLayerIndex);
     }
