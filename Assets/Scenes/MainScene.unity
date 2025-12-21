@@ -5597,9 +5597,9 @@ MonoBehaviour:
   - yarnCharacterName: "\uC544\uBE60"
     characterId: dad
   - yarnCharacterName: Younger Sister
-    characterId: dad
+    characterId: younger sister
   - yarnCharacterName: "\uB3D9\uC0DD"
-    characterId: dad
+    characterId: younger sister
 --- !u!114 &847776961 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8309902628685535410, guid: 52571f68872914e24837210513edea1d, type: 3}
@@ -11680,8 +11680,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 236, y: -252}
-  m_SizeDelta: {x: 247.3991, y: 64.107}
+  m_AnchoredPosition: {x: 128.54736, y: -252}
+  m_SizeDelta: {x: 462.3044, y: 64.107}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1995843714
 MonoBehaviour:

@@ -154,7 +154,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 190757109789
-    m_Localized: 'Dad: Then shall we start?'
+    m_Localized: 'Dad: Then shall we go'
     m_Metadata:
       m_Items: []
   - m_Id: 190757109790
@@ -206,7 +206,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 190757109802
-    m_Localized: ': Clear'
+    m_Localized: ': Game Clear'
     m_Metadata:
       m_Items: []
   - m_Id: 190757109803
