@@ -95,6 +95,26 @@ MonoBehaviour:
     m_Key: PlaylLkeThis
     m_Metadata:
       m_Items: []
+  - m_Id: 212280256135168
+    m_Key: language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 212447680167936
+    m_Key: Soun
+    m_Metadata:
+      m_Items: []
+  - m_Id: 212541502554112
+    m_Key: master
+    m_Metadata:
+      m_Items: []
+  - m_Id: 212633542361088
+    m_Key: bgm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 212739402399744
+    m_Key: sfx
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

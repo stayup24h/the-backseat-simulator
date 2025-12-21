@@ -98,6 +98,26 @@ MonoBehaviour:
     m_Localized: It is dangerous to turn on the interior lights while driving
     m_Metadata:
       m_Items: []
+  - m_Id: 212280256135168
+    m_Localized: Language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 212447680167936
+    m_Localized: Sound
+    m_Metadata:
+      m_Items: []
+  - m_Id: 212541502554112
+    m_Localized: Master
+    m_Metadata:
+      m_Items: []
+  - m_Id: 212633542361088
+    m_Localized: BGM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 212739402399744
+    m_Localized: SFX
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

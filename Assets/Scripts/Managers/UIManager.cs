@@ -4,6 +4,7 @@ using DG.Tweening;
 using TMPro;
 using Yarn.Unity;
 using System;
+using UnityEngine.Localization.Settings;
 
 public class UIManager : SingletonBehaviour<UIManager>
 {
@@ -17,7 +18,14 @@ public class UIManager : SingletonBehaviour<UIManager>
     public GameObject pausePopup;
     public GameObject itemGetPopup;
     public TMP_Text itemDescriptionText;
-    public CanvasGroup tiredUICanvasGroup; // Tired UI 
+    public CanvasGroup tiredUICanvasGroup; // Tired UI
+    
+    [Header("Settings Popup UI")]
+    public GameObject settingsPopup;
+    public Slider masterVolumeSlider;
+    public Slider bgmVolumeSlider;
+    public Slider sfxVolumeSlider;
+    public TMP_Dropdown languageDropdown;
 
     public bool IsItemPopupActive { get; private set; }
     
@@ -247,5 +255,166 @@ titleUICanvasGroup.gameObject.SetActive(false);
         {
             tiredUICanvasGroup.alpha = 1f;
         }
+    }
+
+    // ===== 설정 팝업 함수들 =====
+
+    /// <summary>
+    /// 설정 팝업을 엽니다.
+    /// </summary>
+    public void OpenSettingsPopup()
+    {
+        if (settingsPopup == null) return;
+        settingsPopup.SetActive(true);
+        InitializeSettingsUI();
+    }
+
+    /// <summary>
+    /// 설정 팝업을 닫습니다.
+    /// </summary>
+    public void CloseSettingsPopup()
+    {
+        if (settingsPopup == null) return;
+        settingsPopup.SetActive(false);
+    }
+
+    /// <summary>
+    /// 설정 UI의 초기값을 설정합니다.
+    /// </summary>
+    private void InitializeSettingsUI()
+    {
+        // 마스터 볼륨 슬라이더 초기화
+        if (masterVolumeSlider != null && SoundManager.Instance != null)
+        {
+            masterVolumeSlider.value = SoundManager.Instance.GetMasterVolume();
+            masterVolumeSlider.onValueChanged.AddListener(SetMasterVolume);
+        }
+
+        // BGM 볼륨 슬라이더 초기화
+        if (bgmVolumeSlider != null && SoundManager.Instance != null)
+        {
+            bgmVolumeSlider.value = SoundManager.Instance.GetBGMVolume();
+            bgmVolumeSlider.onValueChanged.AddListener(SetBGMVolume);
+        }
+
+        // SFX 볼륨 슬라이더 초기화
+        if (sfxVolumeSlider != null && SoundManager.Instance != null)
+        {
+            sfxVolumeSlider.value = SoundManager.Instance.GetSFXVolume();
+            sfxVolumeSlider.onValueChanged.AddListener(SetSFXVolume);
+        }
+
+        // 언어 드롭다운 초기화
+        if (languageDropdown != null)
+        {
+            languageDropdown.onValueChanged.AddListener(SetLanguage);
+            UpdateLanguageDropdown();
+        }
+    }
+
+    /// <summary>
+    /// 전체 음향 볼륨을 설정합니다.
+    /// </summary>
+    /// <param name="volume">0~1 범위의 볼륨 값</param>
+    public void SetMasterVolume(float volume)
+    {
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.SetMasterVolume(volume);
+        }
+    }
+
+    /// <summary>
+    /// BGM(배경음악) 볼륨을 설정합니다.
+    /// </summary>
+    /// <param name="volume">0~1 범위의 볼륨 값</param>
+    public void SetBGMVolume(float volume)
+    {
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.SetBGMVolume(volume);
+        }
+    }
+
+    /// <summary>
+    /// SFX(효과음) 볼륨을 설정합니다.
+    /// </summary>
+    /// <param name="volume">0~1 범위의 볼륨 값</param>
+    public void SetSFXVolume(float volume)
+    {
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.SetSFXVolume(volume);
+        }
+    }
+
+    /// <summary>
+    /// 언어를 설정합니다.
+    /// </summary>
+    /// <param name="languageIndex">0: 한국어(ko), 1: 영어(en)</param>
+    public void SetLanguage(int languageIndex)
+    {
+        if (LocalizationSettings.AvailableLocales == null) return;
+
+        string localeCode = languageIndex switch
+        {
+            0 => "ko",  // 한국어
+            1 => "en",  // 영어
+            _ => "en"   // 기본값
+        };
+
+        // 해당 로케일 찾기
+        foreach (var locale in LocalizationSettings.AvailableLocales.Locales)
+        {
+            if (locale.Identifier.Code == localeCode)
+            {
+                LocalizationSettings.SelectedLocale = locale;
+                Debug.Log($"[UIManager] 언어 변경: {localeCode}");
+                return;
+            }
+        }
+
+        Debug.LogWarning($"[UIManager] '{localeCode}' 로케일을 찾을 수 없습니다.");
+    }
+
+    /// <summary>
+    /// 현재 선택된 언어로 드롭다운을 업데이트합니다.
+    /// </summary>
+    private void UpdateLanguageDropdown()
+    {
+        if (languageDropdown == null) return;
+
+        string currentLocaleCode = LocalizationSettings.SelectedLocale.Identifier.Code;
+        int selectedIndex = currentLocaleCode switch
+        {
+            "ko" => 0,  // 한국어
+            "en" => 1,  // 영어
+            _ => 1      // 기본값
+        };
+
+        languageDropdown.value = selectedIndex;
+    }
+
+    /// <summary>
+    /// 모든 슬라이더와 드롭다운 리스너를 제거합니다. (OnDestroy에서 호출)
+    /// </summary>
+    private void UnsubscribeSettingsUI()
+    {
+        if (masterVolumeSlider != null)
+            masterVolumeSlider.onValueChanged.RemoveListener(SetMasterVolume);
+
+        if (bgmVolumeSlider != null)
+            bgmVolumeSlider.onValueChanged.RemoveListener(SetBGMVolume);
+
+        if (sfxVolumeSlider != null)
+            sfxVolumeSlider.onValueChanged.RemoveListener(SetSFXVolume);
+
+        if (languageDropdown != null)
+            languageDropdown.onValueChanged.RemoveListener(SetLanguage);
+    }
+
+    private void OnDestroy()
+    {
+        UnsubscribeSettingsUI();
     }
 }

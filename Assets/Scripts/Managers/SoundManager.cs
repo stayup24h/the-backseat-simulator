@@ -379,11 +379,6 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         return 0f;
     }
 
-    // 옵션 조절 시 실시간 반영
-    public void SetMasterVolume(float vol) { masterVolume = vol; UpdateAllActiveVolumes(); }
-    public void SetBGMVolume(float vol) { bgmVolume = vol; UpdateAllActiveVolumes(); }
-    public void SetNoiseVolume(float vol) { noiseVolume = vol; UpdateAllActiveVolumes(); }
-    public void SetSFXVolume(float vol) { sfxVolume = vol; }
 
     private void UpdateAllActiveVolumes()
     {
@@ -446,6 +441,67 @@ public class SoundManager : SingletonBehaviour<SoundManager>
         // 정지 상태이면 항상 새 음악을 처음부터 재생
         StopBGM(); // 안전하게 상태 리셋
         PlayBGM(bgmName);
+    }
+
+    // ===== 음향 제어 함수들 =====
+
+    /// <summary>
+    /// 전체 음향 볼륨을 설정합니다.
+    /// </summary>
+    public void SetMasterVolume(float volume)
+    {
+        masterVolume = Mathf.Clamp01(volume);
+        // 실제로 AudioMixer를 사용하는 경우, 여기서 AudioMixer의 마스터 볼륨을 조정합니다.
+        // bgmSourceA.outputAudioMixerGroup?.audioMixer.SetFloat("MasterVolume", masterVolume);
+        Debug.Log($"[SoundManager] Master Volume: {masterVolume}");
+    }
+
+    /// <summary>
+    /// BGM 볼륨을 설정합니다.
+    /// </summary>
+    public void SetBGMVolume(float volume)
+    {
+        bgmVolume = Mathf.Clamp01(volume);
+        // 현재 재생 중인 BGM 소스의 볼륨을 업데이트합니다.
+        if (activeBgmSource != null)
+        {
+            activeBgmSource.volume = bgmVolume * masterVolume;
+        }
+        Debug.Log($"[SoundManager] BGM Volume: {bgmVolume}");
+    }
+
+    /// <summary>
+    /// SFX 볼륨을 설정합니다.
+    /// </summary>
+    public void SetSFXVolume(float volume)
+    {
+        sfxVolume = Mathf.Clamp01(volume);
+        // SFX 재생 시 이 볼륨이 사용됩니다.
+        Debug.Log($"[SoundManager] SFX Volume: {sfxVolume}");
+    }
+
+    /// <summary>
+    /// 현재 마스터 볼륨을 반환합니다.
+    /// </summary>
+    public float GetMasterVolume()
+    {
+        return masterVolume;
+    }
+
+    /// <summary>
+    /// 현재 BGM 볼륨을 반환합니다.
+    /// </summary>
+    public float GetBGMVolume()
+    {
+        return bgmVolume;
+    }
+
+    /// <summary>
+    /// 현재 SFX 볼륨을 반환합니다.
+    /// </summary>
+    public float GetSFXVolume()
+    {
+        return sfxVolume;
     }
     
     public void BGMFadeOut()
